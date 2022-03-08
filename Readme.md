@@ -92,3 +92,8 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 
 #### cors
 > CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options. You can install with command `npm i cors`. See more [here](https://www.npmjs.com/package/cors)
+
+<br />
+
+#### lottie
+> This package allow you use animation free. You can install with command `npm i lottie-react-native` (npm) or `yarn add lottie-react-native` (yarn). See more [here](https://www.npmjs.com/package/lottie-react-native)

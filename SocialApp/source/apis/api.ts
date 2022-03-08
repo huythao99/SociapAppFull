@@ -28,6 +28,7 @@ export default async function callAPI(
       return res.data;
     } else {
       showAlert(res.data.message, 'danger');
+      return res.data;
     }
   } catch (error) {
     showAlert(error.message, 'danger');

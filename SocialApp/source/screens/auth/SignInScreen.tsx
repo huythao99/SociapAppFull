@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StatusBar} from 'react-native';
 import {
   BLACK,
@@ -16,11 +16,20 @@ import {REGEX_EMAIL} from '../../constant/regex';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {useAppDispatch} from '../../app/hook';
 import {requestSignin} from '../../feature/auth/authSlice';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../constant/types';
+import LoadingScreen from '../../components/LoadingScreen';
 
 type FormValues = {
   email: string;
   password: string;
 };
+
+type SignInScreenProps = NativeStackNavigationProp<
+  RootStackParamList,
+  'SignInScreen'
+>;
 
 const Container = styled.View`
   flex: 1;
@@ -88,10 +97,18 @@ export default function SignInScreen() {
     handleSubmit,
     formState: {errors},
   } = useForm<FormValues>();
+  const navigation = useNavigation<SignInScreenProps>();
   const dispatch = useAppDispatch();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit: SubmitHandler<FormValues> = data => {
-    dispatch(requestSignin({email: data.email, password: data.password}));
+  const onSubmit: SubmitHandler<FormValues> = async data => {
+    setIsLoading(true);
+    await dispatch(requestSignin({email: data.email, password: data.password}));
+    setIsLoading(false);
+  };
+
+  const onSignUp = () => {
+    navigation.navigate('SignUpScreen');
   };
 
   return (
@@ -182,10 +199,11 @@ export default function SignInScreen() {
         <SigninButton onPress={handleSubmit(onSubmit)}>
           <ButtonText>Đăng nhập</ButtonText>
         </SigninButton>
-        <SignUpButton>
+        <SignUpButton onPress={onSignUp}>
           <ButtonText>Tạo tài khoản mới</ButtonText>
         </SignUpButton>
       </LoginContainer>
+      {isLoading && <LoadingScreen />}
     </Container>
   );
 }

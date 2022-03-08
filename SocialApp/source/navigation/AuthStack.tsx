@@ -1,14 +1,25 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SignInScreen from '../screens/auth/SignInScreen';
-const Stack = createNativeStackNavigator();
+import SignUpScreen from '../screens/auth/SignUpScreen';
+import {RootStackParamList} from '../constant/types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AuthStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name={'SignIn'}
+        name={'SignInScreen'}
         component={SignInScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name={'SignUpScreen'}
+        component={SignUpScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

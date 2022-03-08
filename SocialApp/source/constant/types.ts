@@ -6,4 +6,11 @@ export interface User {
   name?: string;
   avatar?: string;
   coverImage?: string;
+  token?: string;
 }
+
+export type RootStackParamList = {
+  SplashScreen: undefined;
+  SignInScreen: undefined;
+  SignUpScreen: undefined;
+};

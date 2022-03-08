@@ -34,11 +34,17 @@ authRoute.post("/signin", async (req, res) => {
           .json({ status: 0, message: "Email or password is wrong" });
       } else {
         const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
-        res.header("auth-token", token).status(200).json({
-          status: 1,
-          message: "Signin Success",
-          token: token,
-        });
+        res
+          .header("auth-token", token)
+          .status(200)
+          .json({
+            status: 1,
+            message: "Signin Success",
+            token: token,
+            name: user.name,
+            id: user._id,
+            ...req.body,
+          });
       }
     }
   } catch (error) {
@@ -55,12 +61,12 @@ authRoute.post("/signup", async (req, res) => {
     const { error } = validationSignup(req.body);
     if (error) {
       return res
-        .status(400)
+        .status(200)
         .json({ message: error.details[0].message, status: 0 });
     }
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      return res.status(400).json({ message: "email exist", status: 0 });
+      return res.status(200).json({ message: "email exist", status: 0 });
     }
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(req.body.password, salt);
@@ -74,7 +80,10 @@ authRoute.post("/signup", async (req, res) => {
     return res.status(200).json({
       status: 1,
       message: "signup success",
-      user: { ...dataSave._doc },
+      user: {
+        ...req.body,
+        id: dataSave._doc._id,
+      },
     });
   } catch (error) {
     return res.status(400).json({ message: error.message, status: 0 });
