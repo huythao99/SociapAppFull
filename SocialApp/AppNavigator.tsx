@@ -5,11 +5,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './source/constant/types';
 import {useAppSelector} from './source/app/hook';
 import SplashScreen from './source/screens/splash/SplashScreen';
+import MainStack from './source/navigation/MainStack';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   const loadingSplash = useAppSelector(state => state.auth.isLoadingSplash);
+  const existUser = useAppSelector(state => state.auth.existUser);
   return (
     <NavigationContainer>
       {loadingSplash ? (
@@ -20,8 +22,10 @@ export default function AppNavigator() {
             options={{headerShown: false}}
           />
         </Stack.Navigator>
-      ) : (
+      ) : !existUser ? (
         <AuthStack />
+      ) : (
+        <MainStack />
       )}
     </NavigationContainer>
   );

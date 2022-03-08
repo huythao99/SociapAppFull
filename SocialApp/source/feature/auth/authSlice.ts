@@ -18,6 +18,7 @@ interface AuthState {
   id: string;
   coverImage: string;
   isLoadingSplash: boolean;
+  existUser: boolean;
 }
 
 // Define the initial state using that type
@@ -30,6 +31,7 @@ const initialState: AuthState = {
   token: '',
   coverImage: '',
   isLoadingSplash: true,
+  existUser: false,
 };
 
 export const requestSignin = createAsyncThunk(
@@ -148,6 +150,7 @@ export const authSlice = createSlice({
         state.token = action.payload.token;
         state.coverImage = action.payload.coverImage;
         state.isLoadingSplash = false;
+        state.existUser = true;
       }
     });
     builder.addCase(requestSignin.rejected, state => {});

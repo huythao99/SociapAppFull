@@ -10,7 +10,11 @@ export default function App() {
   return (
     <Provider store={store}>
       <SafeAreaView style={styles.container}>
-        <StatusBar animated={true} backgroundColor={WHITE} />
+        <StatusBar
+          animated={true}
+          backgroundColor={WHITE}
+          barStyle={'dark-content'}
+        />
         <AppNavigator />
         <FlashMessage position="top" />
       </SafeAreaView>

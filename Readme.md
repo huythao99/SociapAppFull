@@ -62,6 +62,16 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 > You can install with command `npm install --save react-native-vector-icons` (npm) or `yarn add react-native-vector-icons` (yarn). This library will allow you to use icon. You can see more details [here](https://github.com/oblador/react-native-vector-icons)
 <br />
 
+#### lottie
+> This package allow you use animation free. You can install with command `npm i lottie-react-native` (npm) or `yarn add lottie-react-native` (yarn). See more [here](https://www.npmjs.com/package/lottie-react-native)
+
+<br />
+
+#### react-native-image-picker
+> This package allow you pick image or video from device. You can install with command `npm i react-native-image-picker` (npm) or `yarn add react-native-image-picker` (yarn). See more [here](https://www.npmjs.com/package/react-native-image-picker)
+
+<br />
+
 ## Server
 
 ### Setup enviroment
@@ -94,6 +104,3 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 > CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options. You can install with command `npm i cors`. See more [here](https://www.npmjs.com/package/cors)
 
 <br />
-
-#### lottie
-> This package allow you use animation free. You can install with command `npm i lottie-react-native` (npm) or `yarn add lottie-react-native` (yarn). See more [here](https://www.npmjs.com/package/lottie-react-native)
