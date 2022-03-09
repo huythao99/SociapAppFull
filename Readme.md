@@ -72,6 +72,9 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 
 <br />
 
+#### react-native-permission
+> This package allow you request permission access camera, micro,... of device. You can install with command `npm i react-native-permissions` (npm) or `yarn add react-native-permissions` (yarn). See more [here](https://www.npmjs.com/package/react-native-permissions)
+
 ## Server
 
 ### Setup enviroment

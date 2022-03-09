@@ -17,3 +17,29 @@ export type RootStackParamList = {
   HomeScreen: undefined;
   CreatePostScreen: undefined;
 };
+
+interface UserLike {
+  userID: string;
+  userName: string;
+  userAvatar: string | null;
+}
+
+export interface PostItem {
+  timeCreate: number;
+  id: string;
+  userId: string;
+  userAvatar: string;
+  userName: string;
+  content: string;
+  uriImage: string | null;
+  uriVideo: string | null;
+  numOfLike: number;
+  numOfShare: number;
+  numOfComment: number;
+  listUserLike: Array<UserLike>;
+}
+
+export interface Post {
+  status?: Boolean;
+  listPost?: Array<PostItem>;
+}

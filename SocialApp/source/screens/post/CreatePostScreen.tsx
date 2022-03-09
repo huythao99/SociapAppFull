@@ -28,11 +28,11 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-// import {requestCreatePost} from '../../features/post/postSlice';
 import {useNavigation} from '@react-navigation/native';
 import LoadingScreen from '../../components/LoadingScreen';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {showAlert} from '../../ultilities/Ultilities';
+import {requestCreatePost} from '../../feature/post/postSlice';
+import {DEFAULT_AVATAR} from '../../constant/constants';
 
 type FormValues = {
   content: string;
@@ -147,7 +147,6 @@ const ContentButtonText = styled.Text`
 export default function CreatePostScreen() {
   const userAvatar = useAppSelector(state => state.auth.avatar);
   const userName = useAppSelector(state => state.auth.name);
-  const uid = useAppSelector(state => state.auth.id);
   const [isLoading, setIsLoading] = React.useState(false);
   const [image, setImage] = React.useState(null);
   const {
@@ -231,23 +230,18 @@ export default function CreatePostScreen() {
   };
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
-    // try {
-    //   const response = await dispatch(
-    //     requestCreatePost({
-    //       uid: uid,
-    //       userName: userName,
-    //       userAvatar: userAvatar,
-    //       uriImage: image ? image.uri : null,
-    //       content: data.content,
-    //       uriVideo: null,
-    //     }),
-    //   ).unwrap();
-    //   if (response?.status) {
-    //     navigation.goBack();
-    //   }
-    // } catch (error) {
-    //   showAlert(error.message, 'danger');
-    // }
+    setIsLoading(true);
+    const response = await dispatch(
+      requestCreatePost({
+        uriImage: image ? image.uri : null,
+        content: data.content,
+        uriVideo: null,
+      }),
+    ).unwrap();
+    setIsLoading(false);
+    if (response?.status) {
+      navigation.goBack();
+    }
   };
 
   return (
@@ -257,7 +251,7 @@ export default function CreatePostScreen() {
           contentContainerStyle={{flexGrow: 1}}
           showsVerticalScrollIndicator={false}>
           <HeaderContainer>
-            <AvatarUserImage source={{uri: userAvatar}} />
+            <AvatarUserImage source={{uri: userAvatar || DEFAULT_AVATAR}} />
             <UserNameText>{userName}</UserNameText>
           </HeaderContainer>
           <Controller

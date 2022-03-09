@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const authRoute = require("./routes/authRoute");
+const postRoute = require("./routes/postRoute");
+
 const app = express();
 const mongo = require("mongoose");
 const mongoString = process.env.DATABASE_URL;
@@ -21,6 +23,7 @@ database.once("connected", () => {
 
 app.use(express.json());
 app.use("/api/auth", authRoute);
+app.use("/api/post", postRoute);
 
 app.listen(3000, () => {
   console.log("running");

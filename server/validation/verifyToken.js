@@ -5,7 +5,7 @@ const verifyToken = (req, res, next) => {
   const token = req.header("auth-token");
   try {
     if (!token) {
-      return res.status(400).json({ status: 0, message: "Access Denined" });
+      return res.status(200).json({ status: 0, message: "Access Denined" });
     } else {
       const verified = jwt.verify(token, process.env.SECRET_KEY);
       req.user = verified;
