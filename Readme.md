@@ -54,6 +54,11 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 #### react-native-reanimated
 > This library will help you create your animation with high performance. you can install with command `npm install react-native-reanimated` (npm) `yarn add react-native-reanimated` (yarn). See more [here](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation)
 
+<br />
+
+#### socket.io-client
+> This package allow you init the client socket. You can install with command `npm install socket.io-client` (npm) or `yarn add socket.io-client` (yarn). See more [here](https://socket.io/docs/v4/client-installation/)
+
 #### react-native-flash-message
 > You can install with command `npm install --save react-native-flash-message` (npm) or `yarn add react-native-flash-message` (yarn). You can see usage [here](https://www.npmjs.com/package/react-native-flash-message)
 <br />
@@ -107,3 +112,6 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 > CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options. You can install with command `npm i cors`. See more [here](https://www.npmjs.com/package/cors)
 
 <br />
+
+#### socket.io
+> This package allow you init the server socket. You can install with command `npm install socket.io` (npm) or `yarn add socket.io` (yarn). See more [here](https://socket.io/docs/v4/server-installation/)

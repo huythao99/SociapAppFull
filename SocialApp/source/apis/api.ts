@@ -24,6 +24,7 @@ export default async function callAPI(
       params,
       baseURL: BASE_URL,
     });
+
     if (res.status === 200 && res.data.status === 1) {
       return res.data;
     } else {

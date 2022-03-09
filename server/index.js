@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
+const userRoute = require("./routes/userRoute");
 
 const app = express();
 const mongo = require("mongoose");
@@ -24,6 +25,7 @@ database.once("connected", () => {
 app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
+app.use("/api/user", userRoute);
 
 app.listen(3000, () => {
   console.log("running");

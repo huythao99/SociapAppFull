@@ -2,17 +2,23 @@ const express = require("express");
 const Post = require("../models/Post");
 const User = require("../models/User");
 const verifyToken = require("../validation/verifyToken");
+const { ITEMS_IN_PAGE } = require("../constants");
 
 const postRoute = express.Router();
 
 // get all post
 postRoute.get("/getAllPost", verifyToken, async (req, res) => {
   try {
-    const listPost = await Post.find();
+    const currentPage = req.query.page;
+    const listPost = await Post.find()
+      .sort({ timeCreate: -1 })
+      .skip((currentPage - 1) * ITEMS_IN_PAGE)
+      .limit(ITEMS_IN_PAGE);
     return res.status(200).json({
       status: 1,
       message: "get list post success",
       listPost: listPost,
+      current_page: currentPage,
     });
   } catch (error) {
     return res.status(400).json({ status: 0, message: error.message });

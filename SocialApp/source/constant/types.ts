@@ -39,7 +39,19 @@ export interface PostItem {
   listUserLike: Array<UserLike>;
 }
 
+export interface UserItem {
+  name: string;
+  avatar: string;
+  id: string;
+}
+
 export interface Post {
   status?: Boolean;
   listPost?: Array<PostItem>;
+}
+
+export interface ListUser {
+  status?: Boolean;
+  listUser?: Array<UserItem>;
+  currentPage?: number;
 }
