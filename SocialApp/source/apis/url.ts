@@ -1,9 +1,14 @@
+// auth
 export const getSignInUrl = () => {
   return '/api/auth/signin';
 };
 
 export const getSignUpUrl = () => {
   return '/api/auth/signup';
+};
+
+export const getSignOutUrl = () => {
+  return '/api/auth/signout';
 };
 
 // post

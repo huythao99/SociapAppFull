@@ -5,6 +5,7 @@ import LottieView from 'lottie-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styled from 'styled-components/native';
 import {WHITE} from '../../constant/color';
+import messaging from '@react-native-firebase/messaging';
 
 const Container = styled.View`
   flex: 1;
@@ -22,9 +23,14 @@ export default function SplashScreen() {
       dispatch(loadingSplash());
     } else {
       const userInfo = JSON.parse(user);
+      const fcmtoken = await messaging().getToken();
       setTimeout(() => {
         dispatch(
-          requestSignin({email: userInfo.email, password: userInfo.password}),
+          requestSignin({
+            email: userInfo.email,
+            password: userInfo.password,
+            fcmtoken: fcmtoken,
+          }),
         );
       }, 2000);
     }

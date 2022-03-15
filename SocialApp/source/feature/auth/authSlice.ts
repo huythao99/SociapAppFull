@@ -3,7 +3,7 @@ import type {RootState} from '../../app/store';
 import callAPI from '../../apis/api';
 import {showAlert} from '../../ultilities/Ultilities';
 import {User} from '../../constant/types';
-import {getSignInUrl, getSignUpUrl} from '../../apis/url';
+import {getSignInUrl, getSignOutUrl, getSignUpUrl} from '../../apis/url';
 import {ActionSheetIOS} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -136,6 +136,37 @@ export const requestSignUp = createAsyncThunk(
   },
 );
 
+export const requestSignout = createAsyncThunk(
+  'requestSignOut',
+  async (): Promise<Partial<User>> => {
+    try {
+      const res = await callAPI('get', getSignOutUrl(), {}, {});
+      if (!res) {
+        showAlert('Đã có lỗi xảy ra', 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      } else {
+        await AsyncStorage.removeItem('user');
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
 export const authSlice = createSlice({
   name: 'auth',
   // `createSlice` will infer the state type from the `initialState` argument
@@ -164,7 +195,22 @@ export const authSlice = createSlice({
       }
     });
     builder.addCase(requestSignin.rejected, state => {});
-    // sign up
+    // sign out
+    builder.addCase(requestSignout.pending, () => {});
+    builder.addCase(requestSignout.fulfilled, (state, action) => {
+      if (action.payload.status) {
+        state.email = '';
+        state.password = '';
+        state.name = '';
+        state.avatar = '';
+        state.id = '';
+        state.token = '';
+        state.coverImage = '';
+        state.isLoadingSplash = false;
+        state.existUser = false;
+      }
+    });
+    builder.addCase(requestSignout.rejected, () => {});
   },
 });
 
