@@ -67,8 +67,6 @@ chatRoute.get("/getAllMessage", verifyToken, async (req, res) => {
 });
 
 chatRoute.patch("/sendMessage", verifyToken, async (req, res) => {
-  console.log(Date.now());
-  console.log(typeof Date.now());
   try {
     const newMessage = new Message({
       content: req.body.content,

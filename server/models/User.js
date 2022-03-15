@@ -18,6 +18,12 @@ const User = new mongo.Schema({
     type: String,
     default: null,
   },
+  token: {
+    type: String || null,
+  },
+  fcmToken: {
+    type: String || null,
+  },
 });
 
 module.exports = mongo.model("User", User);

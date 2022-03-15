@@ -20,6 +20,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../constant/types';
 import {useNavigation} from '@react-navigation/native';
 import LoadingScreen from '../../components/LoadingScreen';
+import messaging from '@react-native-firebase/messaging';
 
 type FormValues = {
   name: string;
@@ -104,11 +105,13 @@ export default function SignUpScreen() {
 
   const onSubmit: SubmitHandler<FormValues> = async data => {
     setIsLoading(true);
+    const fcmToken = await messaging().getToken();
     await dispatch(
       requestSignUp({
         name: data.name,
         email: data.email,
         password: data.password,
+        fcmtoken: fcmToken,
       }),
     );
     setIsLoading(false);

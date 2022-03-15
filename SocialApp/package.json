@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.16.1",
+    "@react-native-community/push-notification-ios": "^1.10.1",
     "@react-native-firebase/app": "^14.5.1",
     "@react-native-firebase/messaging": "^14.5.1",
     "@react-native-firebase/storage": "^14.5.1",
@@ -54,5 +55,8 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "resolutions": {
+    "styled-components": "^5"
   }
 }

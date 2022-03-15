@@ -33,7 +33,7 @@ Details [here](https://reactnative.dev/docs/environment-setup). See instructions
 <br />
 
 #### styled component
-> Styled component is modern of css. you can install with command `npm install --save styled-components` (npm) or `yarn add styled-components` (yarn). See more [here](https://styled-components.com/docs/basics)
+> Styled component is modern of css. you can install with command `npm install --save styled-components` (npm) or `yarn add styled-components` (yarn). See more [here](https://styled-components.com/docs/basics). If you have an error: 'any Property 'Text' does not exist on type '(tag: any) => void', you should add `"resolutions": {"styled-components": "^5"}` on package.json, delete node_modules, run command `npm install` (npm) or `yarn install` (yarn)
 <br />
 
 #### react-hook-form

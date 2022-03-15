@@ -38,14 +38,17 @@ export const requestSignin = createAsyncThunk(
   async ({
     email,
     password,
+    fcmtoken,
   }: {
     email: string;
     password: string;
+    fcmtoken: string;
   }): Promise<Partial<User>> => {
     try {
       const data = {
         email,
         password,
+        fcmtoken,
       };
       const res = await callAPI('post', `${getSignInUrl()}`, data, {});
       if (res?.status === 1) {
@@ -82,10 +85,12 @@ export const requestSignUp = createAsyncThunk(
       name,
       email,
       password,
+      fcmtoken,
     }: {
       name: string;
       email: string;
       password: string;
+      fcmtoken: string;
     },
     thunkAPI,
   ): Promise<Partial<User>> => {
@@ -100,7 +105,11 @@ export const requestSignUp = createAsyncThunk(
         await AsyncStorage.setItem('user', JSON.stringify(res));
         showAlert('Tạo tài khoản thành công', 'success');
         thunkAPI.dispatch(
-          requestSignin({email: res.email, password: res.password}),
+          requestSignin({
+            email: res.email,
+            password: res.password,
+            fcmtoken: fcmtoken,
+          }),
         );
         return new Promise(resolve => {
           resolve({

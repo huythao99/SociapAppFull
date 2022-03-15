@@ -2,6 +2,8 @@ const express = require("express");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const verifyToken = require("../validation/verifyToken");
+
 require("dotenv").config();
 const authRoute = express.Router();
 const {
@@ -15,7 +17,7 @@ authRoute.post("/signin", async (req, res) => {
     const { error } = validationSignin(req.body);
     if (error) {
       return res
-        .status(400)
+        .status(200)
         .json({ message: error.details[0].message, status: 0 });
     }
     const user = await User.findOne({ email: req.body.email });
@@ -34,6 +36,13 @@ authRoute.post("/signin", async (req, res) => {
           .json({ status: 0, message: "Email or password is wrong" });
       } else {
         const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
+        const option = { new: true };
+
+        await User.findByIdAndUpdate(
+          { _id: user._id },
+          { token: token, fcmToken: req.body.fcmtoken },
+          option
+        );
         res
           .header("auth-token", token)
           .status(200)
@@ -84,6 +93,26 @@ authRoute.post("/signup", async (req, res) => {
         ...req.body,
         id: dataSave._doc._id,
       },
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message, status: 0 });
+  }
+});
+
+// sign out
+authRoute.get("/signout", verifyToken, async (req, res) => {
+  try {
+    const option = {
+      new: true,
+    };
+    await User.findByIdAndUpdate(
+      { _id: req.user._id },
+      { token: null, fcmToken: null },
+      option
+    );
+    return res.header("auth-token", null).status(200).json({
+      message: "logout success",
+      status: 1,
     });
   } catch (error) {
     return res.status(400).json({ message: error.message, status: 0 });
