@@ -23,6 +23,7 @@ export default async function callAPI(
       headers,
       params,
       baseURL: BASE_URL,
+      timeout: 1000,
     });
 
     if (res.status === 200 && res.data.status === 1) {

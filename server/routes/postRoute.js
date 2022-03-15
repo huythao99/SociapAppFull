@@ -9,7 +9,7 @@ const postRoute = express.Router();
 // get all post
 postRoute.get("/getAllPost", verifyToken, async (req, res) => {
   try {
-    const currentPage = req.query.page;
+    const currentPage = Number(req.query.page || 1);
     const listPost = await Post.find()
       .sort({ timeCreate: -1 })
       .skip((currentPage - 1) * ITEMS_IN_PAGE)
@@ -47,26 +47,23 @@ postRoute.post("/createPost", verifyToken, async (req, res) => {
 });
 
 // like post
-postRoute.patch("/likePost/:postID", verifyToken, async (req, res) => {
+postRoute.patch("/likePost", verifyToken, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.postID);
+    const post = await Post.findById(req.query.postID);
     const listUserLikePost = [...post.listIDUserLike];
     const indexUserLikedPost = listUserLikePost.findIndex(
       (item) => item.userID === req.user._id
     );
     if (indexUserLikedPost === -1) {
-      const user = await User.findById(req.user._id);
       listUserLikePost.push({
         userID: req.user._id,
-        userName: user.name,
-        userAvatar: user.avatar,
       });
     } else {
       listUserLikePost.splice(indexUserLikedPost, 1);
     }
     const options = { new: true };
     const dataUpdate = await Post.findByIdAndUpdate(
-      req.params.postID,
+      req.query.postID,
       {
         listIDUserLike: listUserLikePost,
       },

@@ -14,6 +14,13 @@ export const showAlert = (
   });
 };
 
+export const sortID = (s1: string, s2: string) => {
+  if (s1.localeCompare(s2) === 1) {
+    return `${s2}_${s1}`;
+  }
+  return `${s1}_${s2}`;
+};
+
 export const timeAgo = (time: number) => {
   const now = Date.now();
   const ago = Math.round((now - time) / 1000);

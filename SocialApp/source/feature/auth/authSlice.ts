@@ -6,7 +6,6 @@ import {User} from '../../constant/types';
 import {getSignInUrl, getSignUpUrl} from '../../apis/url';
 import {ActionSheetIOS} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAppDispatch} from '../../app/hook';
 
 // Define a type for the slice state
 interface AuthState {
@@ -49,7 +48,7 @@ export const requestSignin = createAsyncThunk(
         password,
       };
       const res = await callAPI('post', `${getSignInUrl()}`, data, {});
-      if (res.status === 1) {
+      if (res?.status === 1) {
         await AsyncStorage.setItem('user', JSON.stringify(res));
         return new Promise(resolve => {
           resolve({
@@ -97,7 +96,7 @@ export const requestSignUp = createAsyncThunk(
         password,
       };
       const res = await callAPI('post', `${getSignUpUrl()}`, data, {});
-      if (res.status === 1) {
+      if (res?.status === 1) {
         await AsyncStorage.setItem('user', JSON.stringify(res));
         showAlert('Tạo tài khoản thành công', 'success');
         thunkAPI.dispatch(
@@ -151,6 +150,8 @@ export const authSlice = createSlice({
         state.coverImage = action.payload.coverImage;
         state.isLoadingSplash = false;
         state.existUser = true;
+      } else {
+        state.isLoadingSplash = false;
       }
     });
     builder.addCase(requestSignin.rejected, state => {});

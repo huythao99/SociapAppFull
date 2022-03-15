@@ -8,8 +8,9 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../constant/types';
 import PostItem from '../../components/PostItem';
-import {showAlert} from '../../ultilities/Ultilities';
-import {DEFAULT_AVATAR} from '../../constant/constants';
+import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
+import {requestGetPost} from '../../feature/post/postSlice';
+// import socket from '../../socket/SocketClient';
 
 interface HeaderProps {
   avatarUser: string;
@@ -64,8 +65,12 @@ const HeaderFlatList = (props: HeaderProps) => {
 export default function HomeScreen() {
   const avatarUser = useAppSelector(state => state.auth.avatar);
   const userID = useAppSelector(state => state.auth.id);
-  const [listPost, setListPost] = React.useState([]);
+  const currentPage = useAppSelector(state => state.post.currentPage);
+  const listPost = useAppSelector(state => state.post.listPost);
   const navigation = useNavigation<HomeScreenProps>();
+  const [isLoading, setIsLoading] = React.useState(false);
+  const dispatch = useAppDispatch();
+  const [isRefresh, setIsRefresh] = React.useState(false);
 
   const onClickCreatePostButton = () => {
     navigation.navigate('CreatePostScreen');
@@ -75,6 +80,22 @@ export default function HomeScreen() {
     // navigation.navigate('Profile', {
     //   uid: uid,
     // });
+  };
+
+  const getListPost = async () => {
+    setIsLoading(true);
+    await dispatch(requestGetPost({page: 1}));
+    setIsLoading(false);
+  };
+
+  const onLoadMore = () => {
+    dispatch(requestGetPost({page: currentPage + 1}));
+  };
+
+  const onRefresh = () => {
+    setIsRefresh(true);
+    getListPost();
+    setIsRefresh(false);
   };
 
   const renderItem = ({item}) => {
@@ -87,7 +108,16 @@ export default function HomeScreen() {
     );
   };
 
-  React.useEffect(() => {}, []);
+  React.useEffect(() => {
+    getListPost();
+  }, []);
+
+  // React.useEffect(() => {
+  //   // socket.connect();
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
 
   return (
     <FlatList
@@ -101,6 +131,11 @@ export default function HomeScreen() {
           avatarUser={avatarUser ? avatarUser : DEFAULT_AVATAR}
         />
       )}
+      refreshing={isRefresh}
+      onRefresh={onRefresh}
+      onEndReached={onLoadMore}
+      onEndReachedThreshold={0.5}
+      showsVerticalScrollIndicator={false}
     />
   );
 }

@@ -10,6 +10,7 @@ userRoute.get("/getAllUser", verifyToken, async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
     const listUser = await User.find()
+      .sort({ name: "desc" })
       .skip((currentPage - 1) * ITEMS_IN_PAGE)
       .limit(ITEMS_IN_PAGE);
     const newListUser = listUser.map((item) => {

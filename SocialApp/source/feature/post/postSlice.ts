@@ -3,10 +3,11 @@ import {showAlert} from '../../ultilities/Ultilities';
 import {Post, PostItem} from '../../constant/types';
 import storage from '@react-native-firebase/storage';
 import callAPI from '../../apis/api';
-import {getCreatePostUrl} from '../../apis/url';
+import {getAllPost, getCreatePostUrl} from '../../apis/url';
 
 interface PostState {
   listPost: Array<PostItem>;
+  currentPage: number;
 }
 
 export const requestCreatePost = createAsyncThunk(
@@ -36,6 +37,32 @@ export const requestCreatePost = createAsyncThunk(
       return new Promise(resolve => {
         resolve({
           status: true,
+        });
+      });
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestGetPost = createAsyncThunk(
+  'post/requestGetPost',
+  async ({page}: {page: number}): Promise<Partial<Post>> => {
+    try {
+      const params = {
+        page,
+      };
+      const res = await callAPI('get', getAllPost(), {}, params);
+      return new Promise(resolve => {
+        resolve({
+          status: true,
+          listPost: res.listPost,
+          currentPage: res.current_page,
         });
       });
     } catch (error) {
@@ -94,6 +121,7 @@ export const requestCreatePost = createAsyncThunk(
 // Define the initial state using that type
 const initialState: PostState = {
   listPost: [],
+  currentPage: 1,
 };
 
 export const postSlice = createSlice({
@@ -105,6 +133,19 @@ export const postSlice = createSlice({
     builder.addCase(requestCreatePost.pending, state => {});
     builder.addCase(requestCreatePost.fulfilled, state => {});
     builder.addCase(requestCreatePost.rejected, state => {});
+    // get post
+    builder.addCase(requestGetPost.pending, () => {});
+    builder.addCase(requestGetPost.fulfilled, (state, action) => {
+      if (action.payload.status) {
+        if (action.payload.currentPage === 1) {
+          state.listPost = action.payload.listPost;
+        } else {
+          state.listPost = [...state.listPost, ...action.payload.listPost];
+        }
+        state.currentPage = action.payload.currentPage;
+      }
+    });
+    builder.addCase(requestGetPost.rejected, () => {});
   },
 });
 

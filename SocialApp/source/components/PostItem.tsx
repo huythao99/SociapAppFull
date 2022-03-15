@@ -18,6 +18,7 @@ import {useAppDispatch} from '../app/hook';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../constant/types';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {DEFAULT_AVATAR} from '../constant/constants';
 
 interface PostItemProps {
   item: {
@@ -29,7 +30,7 @@ interface PostItemProps {
     uriImage: string | null;
     numOfShare: number;
     numOfComment: number;
-    listUserLike: Array<string>;
+    listIDUserLike: Array<string>;
     id: string;
   };
   uid: string;
@@ -184,7 +185,7 @@ function PostItem(props: PostItemProps) {
 
   React.useEffect(() => {
     setIsLiked(
-      props.item.listUserLike.findIndex(item => item === props.uid) !== -1,
+      props.item.listIDUserLike.findIndex(item => item === props.uid) !== -1,
     );
   }, []);
 
@@ -193,7 +194,9 @@ function PostItem(props: PostItemProps) {
       <HeaderContainer>
         <UserContainer
           onPress={() => props.onClickUserOfPost(props.item.posterId)}>
-          <UserAvatarImage source={{uri: props.item.posterAvatar}} />
+          <UserAvatarImage
+            source={{uri: props.item.posterAvatar || DEFAULT_AVATAR}}
+          />
           <View>
             <UserNameText>{props.item.posterName}</UserNameText>
             <TimeCreatedPostText>
@@ -214,7 +217,7 @@ function PostItem(props: PostItemProps) {
         </ContentImageButton>
       )}
       <InfoReactionContainer>
-        {props.item.listUserLike.length > 0 && (
+        {props.item.listIDUserLike.length > 0 && (
           <InfoReactionWrap position={'flex-start'}>
             <FontAwesome5
               size={(WIDTH / 100) * 4.5}
@@ -223,7 +226,7 @@ function PostItem(props: PostItemProps) {
               solid={true}
             />
             <InfoReactionText>
-              {props.item.listUserLike.length} lượt thích
+              {props.item.listIDUserLike.length} lượt thích
             </InfoReactionText>
           </InfoReactionWrap>
         )}
