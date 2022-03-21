@@ -22,27 +22,26 @@ export type RootStackParamList = {
     friendAvatar: string;
     friendName: string;
   };
+  DetailPostScreen: {
+    idPost: string;
+  };
 };
-
-interface UserLike {
-  userID: string;
-  userName: string;
-  userAvatar: string | null;
-}
 
 export interface PostItem {
   timeCreate: number;
-  id: string;
-  userId: string;
-  userAvatar: string;
-  userName: string;
+  _id?: string;
+  userId: {
+    _id: string;
+    avatar: string;
+    name: string;
+  };
   content: string;
   uriImage: string | null;
   uriVideo: string | null;
   numOfLike: number;
   numOfShare: number;
   numOfComment: number;
-  listUserLike: Array<UserLike>;
+  listIDUserLike: Array<string>;
 }
 
 export interface UserItem {
@@ -55,6 +54,7 @@ export interface Post {
   status?: Boolean;
   listPost?: Array<PostItem>;
   currentPage?: number;
+  post?: PostItem;
 }
 
 export interface ListUser {
@@ -96,6 +96,7 @@ export interface MessageItem {
     name: string;
     avatar: string;
   };
+  _id: string;
 }
 
 export interface Message {

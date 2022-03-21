@@ -9,8 +9,8 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../constant/types';
 import PostItem from '../../components/PostItem';
 import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
-import {requestGetPost} from '../../feature/post/postSlice';
-// import socket from '../../socket/SocketClient';
+import {requestGetPost, updateListPost} from '../../feature/post/postSlice';
+import {socket} from '../../socket/SocketClient';
 
 interface HeaderProps {
   avatarUser: string;
@@ -112,12 +112,15 @@ export default function HomeScreen() {
     getListPost();
   }, []);
 
-  // React.useEffect(() => {
-  //   // socket.connect();
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
+  React.useEffect(() => {
+    socket.on('updatePost', post => {
+      dispatch(updateListPost({post: {...post}}));
+    });
+    return () => {
+      socket.off('updatePost');
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <FlatList

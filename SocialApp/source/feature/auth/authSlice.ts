@@ -102,12 +102,12 @@ export const requestSignUp = createAsyncThunk(
       };
       const res = await callAPI('post', `${getSignUpUrl()}`, data, {});
       if (res?.status === 1) {
-        await AsyncStorage.setItem('user', JSON.stringify(res));
+        await AsyncStorage.setItem('user', JSON.stringify(res.user));
         showAlert('Tạo tài khoản thành công', 'success');
         thunkAPI.dispatch(
           requestSignin({
-            email: res.email,
-            password: res.password,
+            email: res.user.email,
+            password: res.user.password,
             fcmtoken: fcmtoken,
           }),
         );

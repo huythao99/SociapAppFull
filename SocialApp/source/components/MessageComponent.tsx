@@ -4,6 +4,11 @@ import styled from 'styled-components/native';
 import {HEIGHT, normalize, WIDTH} from '../constant/dimensions';
 import {BLACK, BLUE_GRAY, LIGHT_BLUE, WHITE} from '../constant/color';
 import {DEFAULT_AVATAR} from '../constant/constants';
+import Animated, {
+  SlideInDown,
+  SlideInRight,
+  SlideInUp,
+} from 'react-native-reanimated';
 
 interface MessageItemProps {
   item: MessageItem;
@@ -66,7 +71,15 @@ const MessageUserText = styled(MessageFriendText)`
 
 function MessageComponent(props: MessageItemProps) {
   return (
-    <Container isMessageOfFriend={props.item.senderID !== props.userID}>
+    <Animated.View
+      entering={SlideInRight}
+      style={{
+        flexDirection: 'row',
+        justifyContent:
+          props.item.senderID !== props.userID ? 'flex-start' : 'flex-end',
+        marginHorizontal: (WIDTH / 100) * 4,
+        marginVertical: HEIGHT / 100,
+      }}>
       {props.item.senderID !== props.userID ? (
         <>
           <UserImage
@@ -89,7 +102,7 @@ function MessageComponent(props: MessageItemProps) {
           </MessageUserContainer>
         </>
       )}
-    </Container>
+    </Animated.View>
   );
 }
 

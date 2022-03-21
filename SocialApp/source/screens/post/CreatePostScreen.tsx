@@ -33,6 +33,8 @@ import LoadingScreen from '../../components/LoadingScreen';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {requestCreatePost} from '../../feature/post/postSlice';
 import {DEFAULT_AVATAR} from '../../constant/constants';
+import {socket} from '../../socket/SocketClient';
+import {Socket} from 'socket.io-client';
 
 type FormValues = {
   content: string;
@@ -157,6 +159,8 @@ export default function CreatePostScreen() {
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
+  const refSocket = React.useRef<Socket>();
+
   const translateY = useSharedValue((HEIGHT / 100) * 10);
   const context = useSharedValue({y: 0});
 
@@ -239,10 +243,20 @@ export default function CreatePostScreen() {
       }),
     ).unwrap();
     setIsLoading(false);
+    refSocket?.current?.emit('createPost', {
+      ...response.post,
+    });
     if (response?.status) {
       navigation.goBack();
     }
   };
+
+  React.useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    refSocket.current = socket;
+  }, []);
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>

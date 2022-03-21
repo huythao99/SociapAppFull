@@ -5,6 +5,9 @@ import {WIDTH, HEIGHT, normalize} from '../constant/dimensions';
 import {DEFAULT_AVATAR} from '../constant/constants';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {useAppSelector} from '../app/hook';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../constant/types';
 
 interface UserItemProps {
   item: {
@@ -13,6 +16,8 @@ interface UserItemProps {
     avatar: string | null;
   };
 }
+
+type HomeScreenProps = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
 const Container = styled.TouchableOpacity`
   background-color: ${WHITE};
@@ -47,6 +52,14 @@ const MessageButton = styled.TouchableOpacity`
 
 function UserItem({item}: UserItemProps) {
   const currentUserID = useAppSelector(state => state.auth.id);
+  const navigation = useNavigation<HomeScreenProps>();
+  const onStartChat = () => {
+    navigation.navigate('ChatScreen', {
+      friendID: item.id,
+      friendName: item.name,
+      friendAvatar: item.avatar,
+    });
+  };
   return (
     <Container>
       <UserContainer>
@@ -54,7 +67,7 @@ function UserItem({item}: UserItemProps) {
         <UserNameText>{item.name}</UserNameText>
       </UserContainer>
       {currentUserID !== item.id && (
-        <MessageButton>
+        <MessageButton onPress={() => onStartChat()}>
           <FontAwesome5
             name="facebook-messenger"
             size={(WIDTH / 100) * 5.5}

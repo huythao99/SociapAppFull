@@ -3,6 +3,7 @@ import {showAlert} from '../../ultilities/Ultilities';
 import {Conversation, Message, MessageItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {getConversationUrl, getMessage} from '../../apis/url';
+import {showMessage} from 'react-native-flash-message';
 
 interface MessageState {
   listMessage: Array<MessageItem>;
@@ -24,13 +25,22 @@ export const requestGetMessage = createAsyncThunk(
         receiverID,
       };
       const res = await callAPI('get', getMessage(), {}, params);
-      return new Promise(resolve => {
-        resolve({
-          status: true,
-          listMessage: res.listMessage,
-          currentPage: res.current_page,
+      if (res.status) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            listMessage: res.listMessage,
+            currentPage: res.current_page,
+          });
         });
-      });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
     } catch (error) {
       showAlert(error.message, 'danger');
       return new Promise(resolve => {

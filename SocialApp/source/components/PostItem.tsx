@@ -16,23 +16,13 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {useAppDispatch} from '../app/hook';
 // import {requestLikePost} from '../features/post/postSlice';
 import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from '../constant/types';
+import {PostItem as PostItemType, RootStackParamList} from '../constant/types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {DEFAULT_AVATAR} from '../constant/constants';
+import {requestLikePost} from '../feature/post/postSlice';
 
 interface PostItemProps {
-  item: {
-    timeCreate: number;
-    posterId: string;
-    posterAvatar: string;
-    posterName: string;
-    content: string;
-    uriImage: string | null;
-    numOfShare: number;
-    numOfComment: number;
-    listIDUserLike: Array<string>;
-    id: string;
-  };
+  item: PostItemType;
   uid: string;
   onClickUserOfPost: (uid: string) => void;
 }
@@ -153,17 +143,25 @@ function PostItem(props: PostItemProps) {
   const navigation = useNavigation<HomeScreenProps>();
   const [timer, setTimer] = React.useState(null);
   const [isLiked, setIsLiked] = React.useState(false);
+  const [numOfLike, setNumOfLike] = React.useState(0);
 
-  const onLike = () => {
+  const onLike = async () => {
+    if (isLiked) {
+      setNumOfLike(numOfLike - 1);
+    } else {
+      setNumOfLike(numOfLike + 1);
+    }
     setIsLiked(!isLiked);
+
     let newTimer = timer;
     if (newTimer) {
       clearTimeout(newTimer);
     }
 
-    // newTimer = setTimeout(() => {
-    //   dispatch(requestLikePost({userID: props.uid, postID: props.item.id}));
-    // }, 1500);
+    newTimer = setTimeout(() => {
+      dispatch(requestLikePost({postID: props.item._id}));
+    }, 1500);
+
     setTimer(newTimer);
   };
 
@@ -187,18 +185,19 @@ function PostItem(props: PostItemProps) {
     setIsLiked(
       props.item.listIDUserLike.findIndex(item => item === props.uid) !== -1,
     );
+    setNumOfLike(props.item.listIDUserLike.length);
   }, []);
 
   return (
     <Container>
       <HeaderContainer>
         <UserContainer
-          onPress={() => props.onClickUserOfPost(props.item.posterId)}>
+          onPress={() => props.onClickUserOfPost(props.item.userId._id)}>
           <UserAvatarImage
-            source={{uri: props.item.posterAvatar || DEFAULT_AVATAR}}
+            source={{uri: props.item.userId.avatar || DEFAULT_AVATAR}}
           />
           <View>
-            <UserNameText>{props.item.posterName}</UserNameText>
+            <UserNameText>{props.item.userId.name}</UserNameText>
             <TimeCreatedPostText>
               {timeAgo(props.item.timeCreate)}
             </TimeCreatedPostText>
@@ -217,7 +216,7 @@ function PostItem(props: PostItemProps) {
         </ContentImageButton>
       )}
       <InfoReactionContainer>
-        {props.item.listIDUserLike.length > 0 && (
+        {numOfLike > 0 && (
           <InfoReactionWrap position={'flex-start'}>
             <FontAwesome5
               size={(WIDTH / 100) * 4.5}
@@ -225,9 +224,7 @@ function PostItem(props: PostItemProps) {
               name={'thumbs-up'}
               solid={true}
             />
-            <InfoReactionText>
-              {props.item.listIDUserLike.length} lượt thích
-            </InfoReactionText>
+            <InfoReactionText>{numOfLike} lượt thích</InfoReactionText>
           </InfoReactionWrap>
         )}
         {props.item.numOfComment > 0 && (

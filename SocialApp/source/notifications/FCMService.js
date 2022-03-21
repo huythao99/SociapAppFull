@@ -92,7 +92,7 @@ class FCMService {
         if (remoteMessage) {
           const notification = remoteMessage.notification;
           onOpenNotification(notification);
-          // this.removeDeliveredNotification(notification.notificationId)
+          // this.removeDeliveredNotification(notification.notificationId);
         }
       });
     // Foreground state messages

@@ -7,6 +7,8 @@ import {WHITE} from './source/constant/color';
 import FlashMessage from 'react-native-flash-message';
 import {fcmService} from './source/notifications/FCMService';
 import {localNotificationService} from './source/notifications/LocalNotificationService';
+import PushNotification from 'react-native-push-notification';
+import * as RootNavigation from './source/navigation/RootNavigation';
 
 export default function App() {
   React.useEffect(() => {
@@ -15,10 +17,10 @@ export default function App() {
     localNotificationService.configure(onOpenNotification);
 
     function onRegister(token) {
-      console.log('[App] onRegister: ', token);
+      // console.log('[App] onRegister: ', token);
     }
     function onNotification(notify) {
-      console.log('[App] onNotification: ', notify);
+      // console.log('[App] onNotification: ', notify);
       const options = {
         soundName: 'default',
         playSound: true,
@@ -32,15 +34,31 @@ export default function App() {
       );
     }
     function onOpenNotification(notify) {
-      console.log('[App] onOpenNotification: ', notify);
-      alert('Open Notify: ' + notify.body);
+      if (
+        !notify ||
+        Object.keys(notify).length === 0 ||
+        notify.android === undefined
+      ) {
+        return;
+      }
+      RootNavigation.navigate('DetailPostScreen', {idPost: '123'});
+      alert('run notify: ' + JSON.stringify(notify));
     }
 
     return () => {
-      console.log('[App] unRegister');
       fcmService.unRegister();
       localNotificationService.unregister();
     };
+  }, []);
+
+  React.useEffect(() => {
+    PushNotification.channelExists('channel-id', function (exists) {
+      if (exists) {
+        return;
+      } else {
+        localNotificationService.createChannelNotify();
+      }
+    });
   }, []);
 
   return (

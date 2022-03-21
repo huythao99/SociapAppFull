@@ -3,7 +3,7 @@ import {showAlert} from '../../ultilities/Ultilities';
 import {Post, PostItem} from '../../constant/types';
 import storage from '@react-native-firebase/storage';
 import callAPI from '../../apis/api';
-import {getAllPost, getCreatePostUrl} from '../../apis/url';
+import {getAllPost, getCreatePostUrl, likePost} from '../../apis/url';
 
 interface PostState {
   listPost: Array<PostItem>;
@@ -33,12 +33,22 @@ export const requestCreatePost = createAsyncThunk(
         uriImage: urlImage,
       };
       const res = await callAPI('post', getCreatePostUrl(), data, {});
-      showAlert('Đăng bài thành công', 'success');
-      return new Promise(resolve => {
-        resolve({
-          status: true,
+      if (res) {
+        showAlert('Đăng bài thành công', 'success');
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            post: res.post,
+          });
         });
-      });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
     } catch (error) {
       showAlert(error.message, 'danger');
       return new Promise(resolve => {
@@ -58,13 +68,21 @@ export const requestGetPost = createAsyncThunk(
         page,
       };
       const res = await callAPI('get', getAllPost(), {}, params);
-      return new Promise(resolve => {
-        resolve({
-          status: true,
-          listPost: res.listPost,
-          currentPage: res.current_page,
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            listPost: res.listPost,
+            currentPage: res.current_page,
+          });
         });
-      });
+      } else {
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
     } catch (error) {
       showAlert(error.message, 'danger');
       return new Promise(resolve => {
@@ -76,47 +94,37 @@ export const requestGetPost = createAsyncThunk(
   },
 );
 
-// export const requestLikePost = createAsyncThunk(
-//   'post/requestLikePost',
-//   async ({postID, userID}: {postID: string; userID: string}) => {
-//     firestore()
-//       .collection('Posts')
-//       .get()
-//       .then(querySnapshot => {
-//         querySnapshot.forEach(async documentSnapshot => {
-//           if (documentSnapshot.data().id === postID) {
-//             let newListUserLike = [];
-//             const index = documentSnapshot
-//               .data()
-//               .listUserLike.findIndex((item: string) => item === userID);
-//             if (index === -1) {
-//               newListUserLike = [
-//                 ...documentSnapshot.data().listUserLike,
-//                 userID,
-//               ];
-//             } else {
-//               newListUserLike = documentSnapshot
-//                 .data()
-//                 .listUserLike.filter((item: string) => item !== userID);
-//             }
-//             firestore()
-//               .collection('Posts')
-//               .doc(documentSnapshot.id)
-//               .update({
-//                 listUserLike: newListUserLike,
-//               })
-//               .then(() => {})
-//               .catch(error => {
-//                 showAlert(error.message, 'danger');
-//               });
-//           }
-//         });
-//       })
-//       .catch(error => {
-//         showAlert(error.message, 'danger');
-//       });
-//   },
-// );
+export const requestLikePost = createAsyncThunk(
+  'post/requestLikePost',
+  async ({postID}: {postID: string}): Promise<Partial<Post>> => {
+    try {
+      const params = {
+        postID,
+      };
+      const res = await callAPI('patch', likePost(), {}, params);
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+          });
+        });
+      } else {
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
 
 // Define the initial state using that type
 const initialState: PostState = {
@@ -128,7 +136,23 @@ export const postSlice = createSlice({
   name: 'post',
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
-  reducers: {},
+  reducers: {
+    updateListPost: (state, action) => {
+      const listPostCoppy = [...state.listPost];
+      const indexOfPost = listPostCoppy.findIndex(
+        item => item._id === action.payload.post.id,
+      );
+      if (indexOfPost === -1) {
+        state.listPost = [...listPostCoppy, action.payload.post];
+      } else {
+        state.listPost = listPostCoppy.splice(
+          indexOfPost,
+          1,
+          action.payload.post,
+        );
+      }
+    },
+  },
   extraReducers: builder => {
     builder.addCase(requestCreatePost.pending, state => {});
     builder.addCase(requestCreatePost.fulfilled, state => {});
@@ -149,6 +173,6 @@ export const postSlice = createSlice({
   },
 });
 
-export const {} = postSlice.actions;
+export const {updateListPost} = postSlice.actions;
 
 export default postSlice.reducer;

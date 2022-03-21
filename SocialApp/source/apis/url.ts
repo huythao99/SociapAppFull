@@ -25,6 +25,10 @@ export const getListPostUrl = () => {
   return '/api/post/getAllPost';
 };
 
+export const likePost = () => {
+  return '/api/post/likePost';
+};
+
 // user
 export const getListUserUrl = () => {
   return '/api/user/getAllUser';

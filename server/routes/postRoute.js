@@ -11,6 +11,7 @@ postRoute.get("/getAllPost", verifyToken, async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
     const listPost = await Post.find()
+      .populate({ path: "userId", select: "name _id avatar" })
       .sort({ timeCreate: -1 })
       .skip((currentPage - 1) * ITEMS_IN_PAGE)
       .limit(ITEMS_IN_PAGE);
@@ -75,7 +76,7 @@ postRoute.patch("/likePost", verifyToken, async (req, res) => {
       post: { ...dataUpdate._doc },
     });
   } catch (error) {
-    return res.status(400).json({ status: 0, message: error.message });
+    return res.status(200).json({ status: 0, message: error.message });
   }
 });
 

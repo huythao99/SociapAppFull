@@ -1,14 +1,14 @@
-import PushNotification from 'react-native-push-notification';
+import PushNotification, {Importance} from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import {Platform} from 'react-native';
 class LocalNotificationService {
   configure = onOpenNotification => {
     PushNotification.configure({
       onRegister: function (token) {
-        console.log('[LocalNotificationService] onRegister:', token);
+        // console.log('[LocalNotificationService] onRegister:', token);
       },
       onNotification: function (notification) {
-        console.log('[LocalNotificationService] onNotification:', notification);
+        // console.log('[LocalNotificationService] onNotification:', notification);
         if (!notification?.data) {
           return;
         }
@@ -54,7 +54,8 @@ class LocalNotificationService {
       message: message || '',
       playSound: options.playSound || false,
       soundName: options.soundName || 'default',
-      userInteraction: false, // BOOLEAN: If the notification was opened by the user from the notification area or not
+      userInteraction: true, // BOOLEAN: If the notification was opened by the user from the notification area or not
+      channelId: 'channel-id',
     });
   };
   buildAndroidNotification = (id, title, message, data = {}, options = {}) => {
@@ -90,11 +91,25 @@ class LocalNotificationService {
     }
   };
   removeDeliveredNotificationByID = notificationId => {
-    console.log(
-      '[LocalNotificationService] removeDeliveredNotificationByID: ',
-      notificationId,
-    );
+    // console.log(
+    //   '[LocalNotificationService] removeDeliveredNotificationByID: ',
+    //   notificationId,
+    // );
     PushNotification.cancelLocalNotifications({id: `${notificationId}`});
+  };
+  createChannelNotify = () => {
+    PushNotification.createChannel(
+      {
+        channelId: 'channel-id', // (required)
+        channelName: 'My channel', // (required)
+        channelDescription: 'A channel to categorise your notifications', // (optional) default: undefined.
+        playSound: false, // (optional) default: true
+        soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+        importance: Importance.HIGH, // (optional) default: Importance.HIGH. Int value of the Android notification importance
+        vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+      },
+      created => {}, // (optional) callback returns whether the channel was created, false means it already existed.
+    );
   };
 }
 export const localNotificationService = new LocalNotificationService();

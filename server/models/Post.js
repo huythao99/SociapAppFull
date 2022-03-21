@@ -1,10 +1,7 @@
 const mongoose = require("mongoose");
 
 const Post = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-  },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   timeCreate: {
     type: Number,
     required: true,
@@ -33,10 +30,18 @@ const Post = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  listIDUserLike: {
-    type: Array,
-    default: [],
-  },
+  listIDUserLike: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  listComment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Post", Post);

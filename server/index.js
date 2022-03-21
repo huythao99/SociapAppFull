@@ -13,7 +13,9 @@ const { Server } = require("socket.io");
 var cors = require("cors");
 const chatRoute = require("./routes/chatRoute");
 const { createMessage, updateConversation } = require("./controller/chat");
-const { sortID } = require("./ultilities/Ultilities");
+const { getPostByID } = require("./controller/post");
+const { getAllFCMTokenUser } = require("./controller/user");
+const { sendNotifiOfNewPost } = require("./controller/notification");
 app.use(cors());
 
 mongo.connect(mongoString);
@@ -43,7 +45,14 @@ const io = new Server(httpServer, {
 
 const socketChat = io.of("/chat");
 
-io.on("connection", (socket) => {});
+io.on("connection", (socket) => {
+  socket.on("createPost", async (post) => {
+    const response = await getPostByID(post._id);
+    socket.emit("updatePost", response);
+    const listFCMToken = await getAllFCMTokenUser(post.userId);
+    sendNotifiOfNewPost(listFCMToken, post.userId, post._id);
+  });
+});
 
 socketChat.on("connection", (socket) => {
   socket.on("join room", (roomID) => {

@@ -32,7 +32,7 @@ chatRoute.get("/getConversation", verifyToken, async (req, res) => {
       current_page: currentPage,
     });
   } catch (error) {
-    return res.status(400).json({ message: error.message, status: 0 });
+    return res.status(200).json({ message: error.message, status: 0 });
   }
 });
 
@@ -43,9 +43,6 @@ chatRoute.get("/getAllMessage", verifyToken, async (req, res) => {
       sortID(req.user._id, req.query.receiverID)
     ).populate({
       path: "message",
-      match: {
-        timeCreate: { $gt: 1647022183186 },
-      },
       options: {
         sort: { timeCreate: -1 },
         skip: (currentPage - 1) * ITEMS_IN_PAGE,
@@ -54,15 +51,25 @@ chatRoute.get("/getAllMessage", verifyToken, async (req, res) => {
       populate: { path: "senderID", select: "name _id avatar" },
       populate: { path: "receiverID", select: "name _id avatar" },
     });
-    return res.status(200).json({
-      status: 1,
-      message: "get list messenger success",
-      listMessage: conversation.message,
-      current_page: currentPage,
-      count: conversation.message.length,
-    });
+    if (conversation) {
+      return res.status(200).json({
+        status: 1,
+        message: "get list messenger success",
+        listMessage: conversation.message,
+        current_page: currentPage,
+        count: conversation.message.length,
+      });
+    } else {
+      return res.status(200).json({
+        status: 1,
+        message: "get list messenger success",
+        listMessage: [],
+        current_page: currentPage,
+        count: 0,
+      });
+    }
   } catch (error) {
-    return res.status(400).json({ status: 0, message: error.message });
+    return res.status(200).json({ status: 0, message: error.message });
   }
 });
 
@@ -112,7 +119,7 @@ chatRoute.patch("/sendMessage", verifyToken, async (req, res) => {
       status: 1,
     });
   } catch (error) {
-    return res.status(400).json({ status: 0, message: error.message });
+    return res.status(200).json({ status: 0, message: error.message });
   }
 });
 

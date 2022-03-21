@@ -59,6 +59,7 @@
     "preset": "react-native"
   },
   "resolutions": {
+    "@types/react": "^17",
     "styled-components": "^5"
   }
 }

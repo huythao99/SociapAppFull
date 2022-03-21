@@ -23,13 +23,11 @@ export default async function callAPI(
       headers,
       params,
       baseURL: BASE_URL,
-      timeout: 1000,
+      timeout: 5000,
     });
-
     if (res.status === 200 && res.data.status === 1) {
       return res.data;
     } else {
-      showAlert(res.data.message, 'danger');
       return res.data;
     }
   } catch (error) {

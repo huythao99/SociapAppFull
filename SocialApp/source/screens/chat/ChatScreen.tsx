@@ -15,7 +15,7 @@ import {FlatList} from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RootStackParamList} from '../../constant/types';
+import {Message, RootStackParamList} from '../../constant/types';
 import MessageComponent from '../../components/MessageComponent';
 import {
   requestGetMessage,
@@ -25,6 +25,7 @@ import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
 import {sortID} from '../../ultilities/Ultilities';
 import {io, Socket} from 'socket.io-client';
 import {socketChat} from '../../socket/SocketClient';
+import Animated, {SequencedTransition} from 'react-native-reanimated';
 
 interface ChatProps {
   route: {
@@ -42,6 +43,8 @@ type ChatScreenProps = StackNavigationProp<RootStackParamList, 'ChatScreen'>;
 type FormValues = {
   content: string;
 };
+
+const FlatListAnimated = Animated.createAnimatedComponent(FlatList);
 
 const Container = styled.View`
   flex: 1;
@@ -286,11 +289,13 @@ export default function ChatScreen(props: ChatProps) {
           />
         </ToolButton>
       </HeaderContainer>
-      <FlatList
+      <FlatListAnimated
         data={listMessage}
         renderItem={renderItem}
         contentContainerStyle={{flexGrow: 1}}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item: any) => {
+          return item?._id;
+        }}
         inverted={true}
       />
       <BottomContainer>
