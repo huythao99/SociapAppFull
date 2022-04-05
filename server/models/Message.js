@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Message = new mongoose.Schema({
   timeCreate: {
     type: Number,
-    default: Date.now(),
+    default: Date.now,
   },
   content: {
     type: String,
@@ -13,8 +13,11 @@ const Message = new mongoose.Schema({
     type: String,
     default: null,
   },
-  senderID: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  receiverID: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  conversation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Conversation",
+  },
+  userSend: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
 module.exports = mongoose.model("Message", Message);

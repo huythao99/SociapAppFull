@@ -126,6 +126,7 @@ export const requestSignUp = createAsyncThunk(
         });
       }
     } catch (error) {
+      console.log('status', error.message);
       showAlert(error.message, 'danger');
       return new Promise(resolve => {
         resolve({

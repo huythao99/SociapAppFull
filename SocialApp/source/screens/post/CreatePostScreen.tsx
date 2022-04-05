@@ -210,6 +210,8 @@ export default function CreatePostScreen() {
           uri: response.assets[0].uri,
           width: response.assets[0].width,
           height: response.assets[0].height,
+          fileName: response.assets[0].fileName,
+          type: response.assets[0].type,
         });
       },
     );
@@ -227,6 +229,8 @@ export default function CreatePostScreen() {
             uri: response.assets[0].uri,
             width: response.assets[0].width,
             height: response.assets[0].height,
+            fileName: response.assets[0].fileName,
+            type: response.assets[0].type,
           });
         }
       },
@@ -237,15 +241,21 @@ export default function CreatePostScreen() {
     setIsLoading(true);
     const response = await dispatch(
       requestCreatePost({
-        uriImage: image ? image.uri : null,
+        image: image
+          ? {
+              fileName: image.fileName,
+              uri: image.uri,
+              type: image.type,
+            }
+          : null,
         content: data.content,
         uriVideo: null,
       }),
     ).unwrap();
     setIsLoading(false);
-    refSocket?.current?.emit('createPost', {
-      ...response.post,
-    });
+    // refSocket?.current?.emit('createPost', {
+    //   ...response.post,
+    // });
     if (response?.status) {
       navigation.goBack();
     }

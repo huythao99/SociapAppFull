@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const bodyParser = require("body-parser");
+const cloudinary = require("cloudinary");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
 const userRoute = require("./routes/userRoute");
@@ -30,10 +32,19 @@ database.once("connected", () => {
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
 app.use("/api/user", userRoute);
 app.use("/api/chat", chatRoute);
+
+cloudinary.config({
+  cloud_name: "dbhjxaqce",
+  api_key: "314688645395247",
+  api_secret: "lYTuaa26jmkuTNX4ZSQZDAexyi0",
+});
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -49,8 +60,8 @@ io.on("connection", (socket) => {
   socket.on("createPost", async (post) => {
     const response = await getPostByID(post._id);
     socket.emit("updatePost", response);
-    const listFCMToken = await getAllFCMTokenUser(post.userId);
-    sendNotifiOfNewPost(listFCMToken, post.userId, post._id);
+    // const listFCMToken = await getAllFCMTokenUser(post.creater);
+    // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });
 });
 

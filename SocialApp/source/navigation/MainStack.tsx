@@ -5,6 +5,7 @@ import TopTabs from './TopTabs';
 import CreatePostScreen from '../screens/post/CreatePostScreen';
 import ChatScreen from '../screens/chat/ChatScreen';
 import DetailPost from '../screens/post/DetailPostScreen';
+import ShowFullImageScreen from '../screens/ShowFullImageScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,6 +39,14 @@ export default function MainStack() {
       <Stack.Screen
         name={'DetailPostScreen'}
         component={DetailPost}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name={'ShowFullImageScreen'}
+        component={ShowFullImageScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

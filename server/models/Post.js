@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const Post = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  creater: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   timeCreate: {
-    type: Number,
-    required: true,
+    type: Date,
+    default: Date.now,
   },
   content: {
     type: String,
@@ -14,23 +14,7 @@ const Post = new mongoose.Schema({
     type: String,
     default: null,
   },
-  uriVideo: {
-    type: String,
-    default: null,
-  },
-  numberOfLike: {
-    type: Number,
-    default: 0,
-  },
-  numberOfComment: {
-    type: Number,
-    default: 0,
-  },
-  numberOfShare: {
-    type: Number,
-    default: 0,
-  },
-  listIDUserLike: [
+  listUserLike: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

@@ -25,12 +25,17 @@ export type RootStackParamList = {
   DetailPostScreen: {
     idPost: string;
   };
+  ShowFullImageScreen: {
+    uriImage: string;
+    width: number;
+    height: number;
+  };
 };
 
 export interface PostItem {
   timeCreate: number;
   _id?: string;
-  userId: {
+  creater: {
     _id: string;
     avatar: string;
     name: string;
@@ -38,10 +43,14 @@ export interface PostItem {
   content: string;
   uriImage: string | null;
   uriVideo: string | null;
-  numOfLike: number;
-  numOfShare: number;
-  numOfComment: number;
-  listIDUserLike: Array<string>;
+  listUserLike: Array<string>;
+  listComment: Array<string>;
+}
+
+export interface ImageFile {
+  type: string;
+  fileName: string;
+  uri: string;
 }
 
 export interface UserItem {

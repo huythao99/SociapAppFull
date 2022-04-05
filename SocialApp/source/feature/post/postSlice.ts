@@ -1,7 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {showAlert} from '../../ultilities/Ultilities';
-import {Post, PostItem} from '../../constant/types';
-import storage from '@react-native-firebase/storage';
+import {ImageFile, Post, PostItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {getAllPost, getCreatePostUrl, likePost} from '../../apis/url';
 
@@ -14,25 +13,34 @@ export const requestCreatePost = createAsyncThunk(
   'post/requestCreatePost',
   async ({
     content,
-    uriImage,
+    image,
   }: {
     content: string;
-    uriImage: string | null;
+    image: ImageFile | null;
     uriVideo: string | null;
   }): Promise<Partial<Post>> => {
     try {
-      const timeNow = Date.now();
-      let urlImage = null;
-      if (uriImage) {
-        const reference = storage().ref(`post/${timeNow}_${uriImage}`);
-        await reference.putFile(uriImage);
-        urlImage = await reference.getDownloadURL();
+      let formData = new FormData();
+      formData.append('content', content);
+      if (image) {
+        formData.append(
+          'file',
+          JSON.parse(
+            JSON.stringify({
+              name: `${Date.now()}_${image.fileName}`,
+              uri: image.uri,
+              type: image.type,
+            }),
+          ),
+        );
       }
-      const data = {
-        content,
-        uriImage: urlImage,
-      };
-      const res = await callAPI('post', getCreatePostUrl(), data, {});
+      const res = await callAPI(
+        'post',
+        getCreatePostUrl(),
+        formData,
+        {},
+        'multipart/form-data',
+      );
       if (res) {
         showAlert('Đăng bài thành công', 'success');
         return new Promise(resolve => {

@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const mongo = require("mongoose");
 const User = new mongo.Schema({
   name: {
@@ -24,6 +25,12 @@ const User = new mongo.Schema({
   fcmToken: {
     type: String || null,
   },
+  listFriendRequest: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FriendRequest",
+    },
+  ],
 });
 
 module.exports = mongo.model("User", User);

@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const Comment = mongoose.Schema({
   timeCreate: {
-    type: Number,
-    require: true,
+    type: Date,
+    default: Date.now,
   },
   content: {
     type: String,

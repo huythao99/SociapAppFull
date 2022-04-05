@@ -166,38 +166,38 @@ function PostItem(props: PostItemProps) {
   };
 
   const onShowImage = () => {
-    // Image.getSize(
-    //   props.item.uriImage,
-    //   (width, height) => {
-    //     navigation.navigate('ShowImage', {
-    //       uriImage: props.item.uriImage,
-    //       width,
-    //       height,
-    //     });
-    //   },
-    //   error => {
-    //     showAlert(error.message, 'danger');
-    //   },
-    // );
+    Image.getSize(
+      props.item.uriImage,
+      (width, height) => {
+        navigation.navigate('ShowFullImageScreen', {
+          uriImage: props.item.uriImage,
+          width,
+          height,
+        });
+      },
+      error => {
+        showAlert(error.message, 'danger');
+      },
+    );
   };
 
   React.useEffect(() => {
     setIsLiked(
-      props.item.listIDUserLike.findIndex(item => item === props.uid) !== -1,
+      props.item.listUserLike.findIndex(item => item === props.uid) !== -1,
     );
-    setNumOfLike(props.item.listIDUserLike.length);
+    setNumOfLike(props.item.listUserLike.length);
   }, []);
 
   return (
     <Container>
       <HeaderContainer>
         <UserContainer
-          onPress={() => props.onClickUserOfPost(props.item.userId._id)}>
+          onPress={() => props.onClickUserOfPost(props.item.creater._id)}>
           <UserAvatarImage
-            source={{uri: props.item.userId.avatar || DEFAULT_AVATAR}}
+            source={{uri: props.item.creater.avatar || DEFAULT_AVATAR}}
           />
           <View>
-            <UserNameText>{props.item.userId.name}</UserNameText>
+            <UserNameText>{props.item.creater.name}</UserNameText>
             <TimeCreatedPostText>
               {timeAgo(props.item.timeCreate)}
             </TimeCreatedPostText>
@@ -227,16 +227,11 @@ function PostItem(props: PostItemProps) {
             <InfoReactionText>{numOfLike} lượt thích</InfoReactionText>
           </InfoReactionWrap>
         )}
-        {props.item.numOfComment > 0 && (
+        {props.item.listComment.length > 0 && (
           <InfoReactionWrap position={'flex-end'}>
             <InfoReactionText>
-              {props.item.numOfComment} bình luận
+              {props.item.listComment.length} bình luận
             </InfoReactionText>
-          </InfoReactionWrap>
-        )}
-        {props.item.numOfShare > 0 && (
-          <InfoReactionWrap position={'flex-end'}>
-            <InfoReactionText>{props.item.numOfShare} chia sẻ</InfoReactionText>
           </InfoReactionWrap>
         )}
       </InfoReactionContainer>

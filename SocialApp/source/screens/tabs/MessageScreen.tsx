@@ -104,9 +104,9 @@ export default function MessageScreen() {
     );
   };
 
-  React.useEffect(() => {
-    getData();
-  }, []);
+  // React.useEffect(() => {
+  //   getData();
+  // }, []);
 
   React.useEffect(() => {
     socketChat.on('updateConversation', data => {
