@@ -4,17 +4,21 @@ import {ListUser, UserItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {getListUserUrl} from '../../apis/url';
 
-interface UserState {
-  listUser: Array<UserItem>;
-  currentPage: number;
-}
+interface UserState {}
 
 export const requestGetUser = createAsyncThunk(
   'user/requestGetUser',
-  async ({page}: {page: number}): Promise<Partial<ListUser>> => {
+  async ({
+    page,
+    filter,
+  }: {
+    page: number;
+    filter: string;
+  }): Promise<Partial<ListUser>> => {
     try {
       const params = {
         page,
+        filter,
       };
       const res = await callAPI('get', getListUserUrl(), {}, params);
       return new Promise(resolve => {
@@ -22,6 +26,7 @@ export const requestGetUser = createAsyncThunk(
           status: true,
           listUser: res.listUser,
           currentPage: res.current_page,
+          totalUser: res.totalUser,
         });
       });
     } catch (error) {
@@ -36,30 +41,13 @@ export const requestGetUser = createAsyncThunk(
 );
 
 // Define the initial state using that type
-const initialState: UserState = {
-  listUser: [],
-  currentPage: 1,
-};
+const initialState: UserState = {};
 
 export const userSlice = createSlice({
   name: 'user',
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {},
-  extraReducers: builder => {
-    builder.addCase(requestGetUser.pending, state => {});
-    builder.addCase(requestGetUser.fulfilled, (state, action) => {
-      if (action.payload.status) {
-        state.currentPage = action.payload.currentPage;
-        if (action.payload.currentPage === 1) {
-          state.listUser = action.payload.listUser;
-        } else {
-          state.listUser = [...state.listUser, ...action.payload.listUser];
-        }
-      }
-    });
-    builder.addCase(requestGetUser.rejected, state => {});
-  },
 });
 
 export const {} = userSlice.actions;

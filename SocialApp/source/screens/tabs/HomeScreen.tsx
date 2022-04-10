@@ -65,10 +65,9 @@ const HeaderFlatList = (props: HeaderProps) => {
 export default function HomeScreen() {
   const avatarUser = useAppSelector(state => state.auth.avatar);
   const userID = useAppSelector(state => state.auth.id);
-  const currentPage = useAppSelector(state => state.post.currentPage);
-  const listPost = useAppSelector(state => state.post.listPost);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [listPost, setListPost] = React.useState([]);
   const navigation = useNavigation<HomeScreenProps>();
-  const [isLoading, setIsLoading] = React.useState(false);
   const dispatch = useAppDispatch();
   const [isRefresh, setIsRefresh] = React.useState(false);
 
@@ -82,10 +81,16 @@ export default function HomeScreen() {
     // });
   };
 
-  const getListPost = async () => {
-    setIsLoading(true);
-    await dispatch(requestGetPost({page: 1}));
-    setIsLoading(false);
+  const getListPost = async (page: number) => {
+    const response = await dispatch(requestGetPost({page})).unwrap();
+    if (response.status) {
+      if (page === 1) {
+        setListPost(response.listPost);
+      } else {
+        setListPost([...listPost, ...response.listPost]);
+      }
+      setCurrentPage(page);
+    }
   };
 
   const onLoadMore = () => {
@@ -94,7 +99,7 @@ export default function HomeScreen() {
 
   const onRefresh = () => {
     setIsRefresh(true);
-    getListPost();
+    getListPost(1);
     setIsRefresh(false);
   };
 
@@ -109,12 +114,12 @@ export default function HomeScreen() {
   };
 
   React.useEffect(() => {
-    getListPost();
+    getListPost(1);
   }, []);
 
   React.useEffect(() => {
     socket.on('updatePost', post => {
-      dispatch(updateListPost({post: {...post}}));
+      setListPost([post, ...listPost]);
     });
     return () => {
       socket.off('updatePost');

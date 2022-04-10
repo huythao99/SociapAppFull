@@ -9,10 +9,16 @@ const userRoute = express.Router();
 userRoute.get("/getAllUser", verifyToken, async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
-    const listUser = await User.find()
+    const listUser = await User.find({
+      name: { $regex: new RegExp(req.query.filter.trim()), $option: "i" },
+    })
       .sort({ name: "desc" })
       .skip((currentPage - 1) * ITEMS_IN_PAGE)
       .limit(ITEMS_IN_PAGE);
+    console.log(listUser);
+    const totalUser = await User.countDocuments({
+      name: new RegExp(req.query.filter),
+    });
     const newListUser = listUser.map((item) => {
       return {
         id: item._id,
@@ -25,6 +31,7 @@ userRoute.get("/getAllUser", verifyToken, async (req, res) => {
       message: "get list user success",
       listUser: newListUser,
       current_page: currentPage,
+      total: totalUser,
     });
   } catch (error) {
     return res.status(400).json({ status: 0, message: error.message });

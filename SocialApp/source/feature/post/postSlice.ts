@@ -161,24 +161,6 @@ export const postSlice = createSlice({
       }
     },
   },
-  extraReducers: builder => {
-    builder.addCase(requestCreatePost.pending, state => {});
-    builder.addCase(requestCreatePost.fulfilled, state => {});
-    builder.addCase(requestCreatePost.rejected, state => {});
-    // get post
-    builder.addCase(requestGetPost.pending, () => {});
-    builder.addCase(requestGetPost.fulfilled, (state, action) => {
-      if (action.payload.status) {
-        if (action.payload.currentPage === 1) {
-          state.listPost = action.payload.listPost;
-        } else {
-          state.listPost = [...state.listPost, ...action.payload.listPost];
-        }
-        state.currentPage = action.payload.currentPage;
-      }
-    });
-    builder.addCase(requestGetPost.rejected, () => {});
-  },
 });
 
 export const {updateListPost} = postSlice.actions;

@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {showAlert} from '../ultilities/Ultilities';
 import {BASE_URL} from '../constant/constants';
 
 export default async function callAPI(
@@ -25,7 +24,7 @@ export default async function callAPI(
     headers,
     params,
     baseURL: BASE_URL,
-    timeout: 5000,
+    timeout: 10000,
   });
   if (res.status === 200 && res.data.status === 1) {
     return res.data;

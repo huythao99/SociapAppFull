@@ -22,8 +22,9 @@ export const sortID = (s1: string, s2: string) => {
 };
 
 export const timeAgo = (time: number) => {
+  const numberTime = new Date(time).getTime();
   const now = Date.now();
-  const ago = Math.round((now - time) / 1000);
+  const ago = Math.round((now - numberTime) / 1000);
   if (ago < 60) {
     return 'Vừa xong';
   } else if (ago < 3600) {

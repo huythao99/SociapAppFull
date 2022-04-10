@@ -70,6 +70,7 @@ export interface ListUser {
   status?: Boolean;
   listUser?: Array<UserItem>;
   currentPage?: number;
+  totalUser: number;
 }
 
 export interface ConversationItem {
