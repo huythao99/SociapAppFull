@@ -29,6 +29,7 @@
     "react-native-flash-message": "^0.2.1",
     "react-native-gesture-handler": "^2.3.0",
     "react-native-image-picker": "^4.7.3",
+    "react-native-modal": "^13.0.1",
     "react-native-pager-view": "^5.4.11",
     "react-native-permissions": "^3.3.0",
     "react-native-reanimated": "^2.4.1",

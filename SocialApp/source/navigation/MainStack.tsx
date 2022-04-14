@@ -6,6 +6,8 @@ import CreatePostScreen from '../screens/post/CreatePostScreen';
 import ChatScreen from '../screens/chat/ChatScreen';
 import DetailPost from '../screens/post/DetailPostScreen';
 import ShowFullImageScreen from '../screens/ShowFullImageScreen';
+import ProfileScreen from '../screens/personal/ProfileScreen';
+import CommentPostScreen from '../screens/post/CommentPostScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -47,6 +49,22 @@ export default function MainStack() {
       <Stack.Screen
         name={'ShowFullImageScreen'}
         component={ShowFullImageScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name={'ProfileScreen'}
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name={'CommentPostScreen'}
+        component={CommentPostScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

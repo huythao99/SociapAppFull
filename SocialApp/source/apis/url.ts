@@ -29,9 +29,21 @@ export const likePost = () => {
   return '/api/post/likePost';
 };
 
+export const getComment = () => {
+  return '/api/post/comment';
+};
+
 // user
 export const getListUserUrl = () => {
   return '/api/user/getAllUser';
+};
+
+export const getDataUserUrl = () => {
+  return '/api/user/getDataUser';
+};
+
+export const getUpdateAvatarUserUrl = () => {
+  return '/api/user/updateAvatar';
 };
 
 // chat

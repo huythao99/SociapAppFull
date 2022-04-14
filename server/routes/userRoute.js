@@ -1,43 +1,46 @@
 const express = require("express");
-const { ITEMS_IN_PAGE } = require("../constants");
-const User = require("../models/User");
 const verifyToken = require("../validation/verifyToken");
+const {
+  getAllUser,
+  getDataUser,
+  updateAvatarUser,
+} = require("./../controller/user");
+const multer = require("multer");
 
 const userRoute = express.Router();
 
-// get all User
-userRoute.get("/getAllUser", verifyToken, async (req, res) => {
-  try {
-    const currentPage = Number(req.query.page || 1);
-    const listUser = await User.find({
-      name: { $regex: new RegExp(req.query.filter.trim()), $option: "i" },
-    })
-      .sort({ name: "desc" })
-      .skip((currentPage - 1) * ITEMS_IN_PAGE)
-      .limit(ITEMS_IN_PAGE);
-    console.log(listUser);
-    const totalUser = await User.countDocuments({
-      name: new RegExp(req.query.filter),
-    });
-    const newListUser = listUser.map((item) => {
-      return {
-        id: item._id,
-        name: item.name,
-        avatar: item.avatar,
-      };
-    });
-    return res.status(200).json({
-      status: 1,
-      message: "get list user success",
-      listUser: newListUser,
-      current_page: currentPage,
-      total: totalUser,
-    });
-  } catch (error) {
-    return res.status(400).json({ status: 0, message: error.message });
-  }
+const imageStorage = multer.diskStorage({
+  // Destination to store image
+  destination: "images",
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "_" + Date.now());
+    // file.fieldname is name of the field (image)
+    // path.extname get the uploaded file extension
+  },
 });
+const upload = multer({
+  storage: imageStorage,
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype === "image/png" ||
+      file.mimetype === "image/jpg" ||
+      file.mimetype === "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
+    }
+  },
+}).single("file");
+
+// get all User
+userRoute.get("/getAllUser", verifyToken, getAllUser);
+
+// get all User
+userRoute.get("/getDataUser", verifyToken, getDataUser);
 
 // update avatar user
+userRoute.patch("/updateAvatar", verifyToken, upload, updateAvatarUser);
 
 module.exports = userRoute;

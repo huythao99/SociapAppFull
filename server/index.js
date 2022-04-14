@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const bodyParser = require("body-parser");
 const cloudinary = require("cloudinary");
 const authRoute = require("./routes/authRoute");
 const postRoute = require("./routes/postRoute");
@@ -23,6 +22,8 @@ app.use(cors());
 mongo.connect(mongoString);
 const database = mongo.connection;
 
+const PORT = process.env.PORT || 3000;
+
 database.on("error", (error) => {
   console.log(error);
 });
@@ -33,7 +34,6 @@ database.once("connected", () => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
@@ -80,6 +80,6 @@ socketChat.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3000, () => {
+httpServer.listen(PORT, (req, res) => {
   console.log("running");
 });

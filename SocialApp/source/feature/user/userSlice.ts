@@ -1,8 +1,12 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {showAlert} from '../../ultilities/Ultilities';
-import {ListUser, UserItem} from '../../constant/types';
+import {DataUser, ImageFile, ListUser, UserItem} from '../../constant/types';
 import callAPI from '../../apis/api';
-import {getListUserUrl} from '../../apis/url';
+import {
+  getDataUserUrl,
+  getListUserUrl,
+  getUpdateAvatarUserUrl,
+} from '../../apis/url';
 
 interface UserState {}
 
@@ -27,6 +31,81 @@ export const requestGetUser = createAsyncThunk(
           listUser: res.listUser,
           currentPage: res.current_page,
           totalUser: res.totalUser,
+        });
+      });
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestGetDataUser = createAsyncThunk(
+  'user/requestGetDataUser',
+  async ({
+    page,
+    uid,
+  }: {
+    page: number;
+    uid: string;
+  }): Promise<Partial<DataUser>> => {
+    try {
+      const params = {
+        page,
+        uid,
+      };
+      const res = await callAPI('get', getDataUserUrl(), {}, params);
+      return new Promise(resolve => {
+        resolve({
+          status: true,
+          listPost: res.dataUser.listPost,
+          currentPage: res.current_page,
+          totalPost: res.dataUser.totalPost,
+          name: res.dataUser.name,
+          avatar: res.dataUser.avatar,
+          coverImage: res.dataUser.coverImage,
+        });
+      });
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestUpdateAvatarUser = createAsyncThunk(
+  'user/requestUpdateAvatarUser',
+  async ({image}: {image: ImageFile}): Promise<Partial<DataUser>> => {
+    try {
+      let formData = new FormData();
+      formData.append(
+        'file',
+        JSON.parse(
+          JSON.stringify({
+            name: `${Date.now()}_${image.fileName}`,
+            uri: image.uri,
+            type: image.type,
+          }),
+        ),
+      );
+      const res = await callAPI(
+        'patch',
+        getUpdateAvatarUserUrl(),
+        formData,
+        {},
+      );
+      return new Promise(resolve => {
+        resolve({
+          status: true,
+          avatar: res.uriImage,
         });
       });
     } catch (error) {

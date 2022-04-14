@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const { default: mongoose } = require("mongoose");
 const mongo = require("mongoose");
 const User = new mongo.Schema({
@@ -19,6 +20,10 @@ const User = new mongo.Schema({
     type: String,
     default: null,
   },
+  coverImage: {
+    type: String,
+    default: null,
+  },
   token: {
     type: String || null,
   },
@@ -29,6 +34,12 @@ const User = new mongo.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "FriendRequest",
+    },
+  ],
+  listPost: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
     },
   ],
 });

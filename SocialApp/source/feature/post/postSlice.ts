@@ -2,7 +2,12 @@ import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {showAlert} from '../../ultilities/Ultilities';
 import {ImageFile, Post, PostItem} from '../../constant/types';
 import callAPI from '../../apis/api';
-import {getAllPost, getCreatePostUrl, likePost} from '../../apis/url';
+import {
+  getAllPost,
+  getComment,
+  getCreatePostUrl,
+  likePost,
+} from '../../apis/url';
 
 interface PostState {
   listPost: Array<PostItem>;
@@ -82,6 +87,49 @@ export const requestGetPost = createAsyncThunk(
             status: true,
             listPost: res.listPost,
             currentPage: res.current_page,
+            total: res.total,
+          });
+        });
+      } else {
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestGetComment = createAsyncThunk(
+  'post/requestGetComment',
+  async ({
+    page,
+    postID,
+  }: {
+    page: number;
+    postID: string;
+  }): Promise<Partial<Post>> => {
+    try {
+      const params = {
+        page,
+        postID,
+      };
+      const res = await callAPI('get', getComment(), {}, params);
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            listComment: res.listComment,
+            currentPage: res.current_page,
+            total: res.total,
           });
         });
       } else {

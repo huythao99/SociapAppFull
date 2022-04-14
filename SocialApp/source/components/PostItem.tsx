@@ -165,6 +165,10 @@ function PostItem(props: PostItemProps) {
     setTimer(newTimer);
   };
 
+  const onNavigateCommentScreen = () => {
+    navigation.navigate('CommentPostScreen', {postID: props.item._id});
+  };
+
   const onShowImage = () => {
     Image.getSize(
       props.item.uriImage,
@@ -228,7 +232,9 @@ function PostItem(props: PostItemProps) {
           </InfoReactionWrap>
         )}
         {props.item.listComment.length > 0 && (
-          <InfoReactionWrap position={'flex-end'}>
+          <InfoReactionWrap
+            position={'flex-end'}
+            onPress={onNavigateCommentScreen}>
             <InfoReactionText>
               {props.item.listComment.length} bình luận
             </InfoReactionText>
@@ -245,7 +251,7 @@ function PostItem(props: PostItemProps) {
           />
           <ReactionText isLiked={isLiked}>Thích</ReactionText>
         </ReactionButton>
-        <ReactionButton>
+        <ReactionButton onPress={onNavigateCommentScreen}>
           <FontAwesome5
             size={(WIDTH / 100) * 4.5}
             color={GREY_700}

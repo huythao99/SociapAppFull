@@ -44,14 +44,18 @@ export default function PeopleScreen() {
     control,
     watch,
     formState: {errors},
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    defaultValues: {textSearch: ''},
+  });
+  const dispatch = useAppDispatch();
   const [listPeople, setListPeople] = React.useState([]);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalUser, setTotalUser] = React.useState(0);
   const [timer, setTimer] = React.useState(null);
-  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
   const textSearch = watch('textSearch', '');
+
   const getData = async (page: number) => {
     setIsLoading(true);
     const response = await dispatch(
@@ -67,10 +71,22 @@ export default function PeopleScreen() {
       setCurrentPage(response.currentPage);
     }
     setIsLoading(false);
+    setIsRefresh(false);
   };
 
   const renderItem = ({item}) => {
     return <UserItem item={item} />;
+  };
+
+  const onLoadMore = () => {
+    if (listPeople.length < totalUser) {
+      getData(currentPage + 1);
+    }
+  };
+
+  const onRefresh = () => {
+    setIsRefresh(true);
+    getData(1);
   };
 
   React.useEffect(() => {
@@ -113,6 +129,10 @@ export default function PeopleScreen() {
         renderItem={renderItem}
         keyExtractor={(_, index) => index.toString()}
         ItemSeparatorComponent={LineItem}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
+        onRefresh={onRefresh}
+        refreshing={isRefresh}
       />
       {isLoading && <LoadingScreen />}
     </Container>

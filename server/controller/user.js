@@ -1,6 +1,8 @@
 const User = require("../models/User");
+const Post = require("../models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { ITEMS_IN_PAGE } = require("../constants");
 
 require("dotenv").config();
 const {
@@ -123,4 +125,101 @@ const signOut = async (req, res) => {
   }
 };
 
-module.exports = { getAllFCMTokenUser, signIn, signUp, signOut };
+const getAllUser = async (req, res) => {
+  try {
+    const currentPage = Number(req.query.page || 1);
+    const listUser = await User.find({
+      name: { $regex: new RegExp(req.query.filter.trim(), "i") },
+    })
+      .sort({ name: "desc" })
+      .skip((currentPage - 1) * ITEMS_IN_PAGE)
+      .limit(ITEMS_IN_PAGE);
+    const totalUser = await User.countDocuments({
+      name: new RegExp(req.query.filter),
+    });
+    const newListUser = listUser.map((item) => {
+      return {
+        id: item._id,
+        name: item.name,
+        avatar: item.avatar,
+      };
+    });
+    return res.status(200).json({
+      status: 1,
+      message: "get list user success",
+      listUser: newListUser,
+      current_page: currentPage,
+      total: totalUser,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+const getDataUser = async (req, res) => {
+  try {
+    const currentPage = Number(req.query.page || 1);
+    const dataUser = await User.findById({ _id: req.query.uid }).populate({
+      path: "listPost",
+      options: {
+        sort: { timeCreate: -1 },
+      },
+    });
+    const totalPostOfUser = await Post.countDocuments({
+      creater: req.query.uid,
+    });
+    const newDataUser = {
+      id: dataUser._id,
+      name: dataUser.name,
+      avatar: dataUser.avatar,
+      coverImage: dataUser.coverImage,
+      listPost: dataUser.listPost,
+    };
+    return res.status(200).json({
+      status: 1,
+      message: "get list user success",
+      dataUser: newDataUser,
+      current_page: currentPage,
+      totalPost: totalPostOfUser,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+const updateAvatarUser = async (req, res) => {
+  try {
+    console.log(req.file);
+    if (req.file) {
+      const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
+        public_id: "avatar" + req.file.filename + Date.now(),
+      });
+      const option = { new: true };
+      const response = await User.findByIdAndUpdate(
+        { _id: req.body._id },
+        { avatar: uriImage },
+        option
+      );
+      console.log(response);
+      return res.status(200).json({
+        status: 1,
+        message: "Update success",
+        avatar: uriImage,
+      });
+    } else {
+      return res.status(400).json({ status: 0, message: "cannot read file" });
+    }
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+module.exports = {
+  getAllFCMTokenUser,
+  signIn,
+  signUp,
+  signOut,
+  getAllUser,
+  getDataUser,
+  updateAvatarUser,
+};

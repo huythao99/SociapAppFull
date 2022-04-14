@@ -12,7 +12,7 @@ export default async function callAPI(
   const value = await AsyncStorage.getItem('user');
   const jsonValue = value != null ? JSON.parse(value) : null;
   const headers = {
-    Accept: 'application/json',
+    Accept: 'application/json, text/plain, */*',
     'Access-Control-Allow-Origin': '*',
     'Content-Type': contentType ? contentType : 'application/json',
     'auth-token': jsonValue ? jsonValue.token : null,

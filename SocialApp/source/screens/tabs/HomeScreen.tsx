@@ -67,6 +67,7 @@ export default function HomeScreen() {
   const userID = useAppSelector(state => state.auth.id);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [listPost, setListPost] = React.useState([]);
+  const [totalPost, setTotalPost] = React.useState(1);
   const navigation = useNavigation<HomeScreenProps>();
   const dispatch = useAppDispatch();
   const [isRefresh, setIsRefresh] = React.useState(false);
@@ -86,6 +87,7 @@ export default function HomeScreen() {
     if (response.status) {
       if (page === 1) {
         setListPost(response.listPost);
+        setTotalPost(response.total);
       } else {
         setListPost([...listPost, ...response.listPost]);
       }
@@ -94,7 +96,9 @@ export default function HomeScreen() {
   };
 
   const onLoadMore = () => {
-    dispatch(requestGetPost({page: currentPage + 1}));
+    if (listPost.length < totalPost) {
+      dispatch(requestGetPost({page: currentPage + 1}));
+    }
   };
 
   const onRefresh = () => {

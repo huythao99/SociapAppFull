@@ -60,8 +60,13 @@ function UserItem({item}: UserItemProps) {
       friendAvatar: item.avatar,
     });
   };
+
+  const onNavigateProfile = () => {
+    navigation.navigate('ProfileScreen', {uid: item.id});
+  };
+
   return (
-    <Container>
+    <Container onPress={onNavigateProfile}>
       <UserContainer>
         <UserImage source={{uri: item.avatar || DEFAULT_AVATAR}} />
         <UserNameText>{item.name}</UserNameText>

@@ -30,10 +30,16 @@ export type RootStackParamList = {
     width: number;
     height: number;
   };
+  ProfileScreen: {
+    uid: string;
+  };
+  CommentPostScreen: {
+    postID: string;
+  };
 };
 
 export interface PostItem {
-  timeCreate: number;
+  timeCreate: number | string | Date;
   _id?: string;
   creater: {
     _id: string;
@@ -45,6 +51,18 @@ export interface PostItem {
   uriVideo: string | null;
   listUserLike: Array<string>;
   listComment: Array<string>;
+}
+
+export interface CommentItem {
+  timeCreate: number | string | Date;
+  content: string;
+  urlImage: string | null;
+  user: {
+    _id: string;
+    avatar: string;
+    name: string;
+  };
+  post: string;
 }
 
 export interface ImageFile {
@@ -64,6 +82,8 @@ export interface Post {
   listPost?: Array<PostItem>;
   currentPage?: number;
   post?: PostItem;
+  listComment?: Array<CommentItem>;
+  total: number;
 }
 
 export interface ListUser {
@@ -71,6 +91,16 @@ export interface ListUser {
   listUser?: Array<UserItem>;
   currentPage?: number;
   totalUser: number;
+}
+
+export interface DataUser {
+  status?: Boolean;
+  listPost?: Array<PostItem>;
+  currentPage?: number;
+  totalPost: number;
+  name: string;
+  avatar: string | undefined | null;
+  coverImage: string | undefined | null;
 }
 
 export interface ConversationItem {

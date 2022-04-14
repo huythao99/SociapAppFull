@@ -2,7 +2,12 @@ const express = require("express");
 const multer = require("multer");
 const Post = require("../models/Post");
 const verifyToken = require("../validation/verifyToken");
-const { getAllPost, createPost } = require("../controller/post");
+const {
+  getAllPost,
+  createPost,
+  likePost,
+  getComment,
+} = require("../controller/post");
 
 const postRoute = express.Router();
 const imageStorage = multer.diskStorage({
@@ -36,36 +41,9 @@ postRoute.get("/getAllPost", verifyToken, getAllPost);
 postRoute.post("/createPost", verifyToken, upload, createPost);
 
 // like post
-postRoute.patch("/likePost", verifyToken, async (req, res) => {
-  try {
-    const post = await Post.findById(req.query.postID);
-    const listUserLikePost = [...post.listIDUserLike];
-    const indexUserLikedPost = listUserLikePost.findIndex(
-      (item) => item.userID === req.user._id
-    );
-    if (indexUserLikedPost === -1) {
-      listUserLikePost.push({
-        userID: req.user._id,
-      });
-    } else {
-      listUserLikePost.splice(indexUserLikedPost, 1);
-    }
-    const options = { new: true };
-    const dataUpdate = await Post.findByIdAndUpdate(
-      req.query.postID,
-      {
-        listIDUserLike: listUserLikePost,
-      },
-      options
-    );
-    return res.status(200).json({
-      message: "request success",
-      status: 1,
-      post: { ...dataUpdate._doc },
-    });
-  } catch (error) {
-    return res.status(400).json({ status: 0, message: error.message });
-  }
-});
+postRoute.patch("/likePost", verifyToken, likePost);
+
+// get list comment
+postRoute.get("/comment", verifyToken, getComment);
 
 module.exports = postRoute;
