@@ -1,17 +1,19 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {showAlert} from '../../ultilities/Ultilities';
-import {ImageFile, Post, PostItem} from '../../constant/types';
+import {CommentItem, ImageFile, Post, PostItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {
   getAllPost,
   getComment,
+  getCreateCommentUrl,
   getCreatePostUrl,
   likePost,
 } from '../../apis/url';
 
 interface PostState {
   listPost: Array<PostItem>;
-  currentPage: number;
+  listComment: Array<CommentItem>;
+  postID: string;
 }
 
 export const requestCreatePost = createAsyncThunk(
@@ -108,48 +110,6 @@ export const requestGetPost = createAsyncThunk(
   },
 );
 
-export const requestGetComment = createAsyncThunk(
-  'post/requestGetComment',
-  async ({
-    page,
-    postID,
-  }: {
-    page: number;
-    postID: string;
-  }): Promise<Partial<Post>> => {
-    try {
-      const params = {
-        page,
-        postID,
-      };
-      const res = await callAPI('get', getComment(), {}, params);
-      if (res) {
-        return new Promise(resolve => {
-          resolve({
-            status: true,
-            listComment: res.listComment,
-            currentPage: res.current_page,
-            total: res.total,
-          });
-        });
-      } else {
-        return new Promise(resolve => {
-          resolve({
-            status: false,
-          });
-        });
-      }
-    } catch (error) {
-      showAlert(error.message, 'danger');
-      return new Promise(resolve => {
-        resolve({
-          status: false,
-        });
-      });
-    }
-  },
-);
-
 export const requestLikePost = createAsyncThunk(
   'post/requestLikePost',
   async ({postID}: {postID: string}): Promise<Partial<Post>> => {
@@ -182,10 +142,114 @@ export const requestLikePost = createAsyncThunk(
   },
 );
 
+export const requestGetComment = createAsyncThunk(
+  'post/requestGetComment',
+  async ({
+    page,
+    postID,
+  }: {
+    page: number;
+    postID: string;
+  }): Promise<Partial<Post>> => {
+    try {
+      const params = {
+        page,
+        postID,
+      };
+      const res = await callAPI('get', getComment(), {}, params);
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            listComment: res.listComment,
+            currentPage: res.current_page,
+            total: res.total,
+            postID: postID,
+          });
+        });
+      } else {
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestCreateComment = createAsyncThunk(
+  'post/requestCreatePost',
+  async ({
+    content,
+    postID,
+    image,
+  }: {
+    content: string;
+    image: ImageFile | null;
+    postID: string;
+  }): Promise<Partial<Post>> => {
+    try {
+      let formData = new FormData();
+      formData.append('content', content);
+      formData.append('postID', postID);
+      if (image) {
+        formData.append(
+          'file',
+          JSON.parse(
+            JSON.stringify({
+              name: `${Date.now()}_${image.fileName}`,
+              uri: image.uri,
+              type: image.type,
+            }),
+          ),
+        );
+      }
+      const res = await callAPI(
+        'post',
+        getCreateCommentUrl(),
+        formData,
+        {},
+        'multipart/form-data',
+      );
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            comment: res.comment,
+          });
+        });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
 // Define the initial state using that type
 const initialState: PostState = {
   listPost: [],
-  currentPage: 1,
+  listComment: [],
+  postID: '',
 };
 
 export const postSlice = createSlice({
@@ -199,7 +263,7 @@ export const postSlice = createSlice({
         item => item._id === action.payload.post.id,
       );
       if (indexOfPost === -1) {
-        state.listPost = [...listPostCoppy, action.payload.post];
+        state.listPost = [action.payload.post, ...listPostCoppy];
       } else {
         state.listPost = listPostCoppy.splice(
           indexOfPost,
@@ -208,9 +272,43 @@ export const postSlice = createSlice({
         );
       }
     },
+    updateListComment: (state, action) => {
+      if (action.payload.comment.post === state.postID) {
+        const listCommentCoppy = [...state.listComment];
+        state.listComment = [action.payload.comment, ...listCommentCoppy];
+      }
+    },
+  },
+  extraReducers: builder => {
+    builder.addCase(requestGetPost.pending, state => {});
+    builder.addCase(requestGetPost.fulfilled, (state, action) => {
+      if (action.payload.status) {
+        if (action.payload.currentPage === 1) {
+          state.listPost = action.payload.listPost;
+        } else {
+          state.listPost = [...state.listPost, ...action.payload.listPost];
+        }
+      }
+    });
+    builder.addCase(requestGetPost.rejected, state => {});
+    builder.addCase(requestGetComment.pending, state => {});
+    builder.addCase(requestGetComment.fulfilled, (state, action) => {
+      if (action.payload.status) {
+        if (action.payload.currentPage === 1) {
+          state.postID = action.payload.postID;
+          state.listComment = action.payload.listComment;
+        } else {
+          state.listComment = [
+            ...state.listComment,
+            ...action.payload.listComment,
+          ];
+        }
+      }
+    });
+    builder.addCase(requestGetComment.rejected, state => {});
   },
 });
 
-export const {updateListPost} = postSlice.actions;
+export const {updateListPost, updateListComment} = postSlice.actions;
 
 export default postSlice.reducer;

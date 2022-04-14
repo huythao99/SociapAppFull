@@ -14,7 +14,7 @@ const { Server } = require("socket.io");
 var cors = require("cors");
 const chatRoute = require("./routes/chatRoute");
 const { createMessage, updateConversation } = require("./controller/chat");
-const { getPostByID } = require("./controller/post");
+const { getPostByID, getCommentByID } = require("./controller/post");
 const { getAllFCMTokenUser } = require("./controller/user");
 const { sendNotifiOfNewPost } = require("./controller/notification");
 app.use(cors());
@@ -49,7 +49,7 @@ cloudinary.config({
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://my-social-app-server.herokuapp.com",
     methods: ["GET", "POST"],
   },
 });
@@ -60,6 +60,13 @@ io.on("connection", (socket) => {
   socket.on("createPost", async (post) => {
     const response = await getPostByID(post._id);
     socket.emit("updatePost", response);
+    // const listFCMToken = await getAllFCMTokenUser(post.creater);
+    // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
+  });
+
+  socket.on("createComment", async (comment) => {
+    const response = await getCommentByID(comment._id);
+    socket.emit("updateComment", response);
     // const listFCMToken = await getAllFCMTokenUser(post.creater);
     // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });

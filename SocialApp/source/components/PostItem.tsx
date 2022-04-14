@@ -20,6 +20,10 @@ import {PostItem as PostItemType, RootStackParamList} from '../constant/types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {DEFAULT_AVATAR} from '../constant/constants';
 import {requestLikePost} from '../feature/post/postSlice';
+import Animated, {
+  LightSpeedInLeft,
+  SequencedTransition,
+} from 'react-native-reanimated';
 
 interface PostItemProps {
   item: PostItemType;
@@ -193,7 +197,15 @@ function PostItem(props: PostItemProps) {
   }, []);
 
   return (
-    <Container>
+    <Animated.View
+      entering={LightSpeedInLeft.duration(400)}
+      layout={SequencedTransition}
+      style={{
+        marginVertical: HEIGHT / 100,
+        paddingTop: HEIGHT / 100,
+        width: '100%',
+        backgroundColor: WHITE,
+      }}>
       <HeaderContainer>
         <UserContainer
           onPress={() => props.onClickUserOfPost(props.item.creater._id)}>
@@ -268,7 +280,7 @@ function PostItem(props: PostItemProps) {
           <ReactionText>Chia sẻ</ReactionText>
         </ReactionButton>
       </ReactionButtonContainer>
-    </Container>
+    </Animated.View>
   );
 }
 

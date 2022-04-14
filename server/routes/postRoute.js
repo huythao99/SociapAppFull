@@ -7,6 +7,7 @@ const {
   createPost,
   likePost,
   getComment,
+  createComment,
 } = require("../controller/post");
 
 const postRoute = express.Router();
@@ -45,5 +46,8 @@ postRoute.patch("/likePost", verifyToken, likePost);
 
 // get list comment
 postRoute.get("/comment", verifyToken, getComment);
+
+// create comment
+postRoute.post("/createComment", verifyToken, upload, createComment);
 
 module.exports = postRoute;

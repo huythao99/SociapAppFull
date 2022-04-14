@@ -33,6 +33,10 @@ export const getComment = () => {
   return '/api/post/comment';
 };
 
+export const getCreateCommentUrl = () => {
+  return 'api/post/createComment';
+};
+
 // user
 export const getListUserUrl = () => {
   return '/api/user/getAllUser';

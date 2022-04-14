@@ -11,6 +11,14 @@ const getPostByID = async (idPost) => {
   return post;
 };
 
+const getCommentByID = async (idComment) => {
+  const post = await Comment.findById({ _id: idComment }).populate({
+    path: "user",
+    select: "name _id avatar",
+  });
+  return post;
+};
+
 const getAllPost = async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
@@ -121,4 +129,59 @@ const getComment = async (req, res) => {
   }
 };
 
-module.exports = { getPostByID, getAllPost, createPost, likePost, getComment };
+const createComment = async (req, res) => {
+  try {
+    const options = { new: true };
+    if (req.file) {
+      const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
+        public_id: "comment" + req.file.filename + Date.now(),
+      });
+      const newComment = new Comment({
+        user: req.user._id,
+        content: req.body.content,
+        uriImage: uriImage.url,
+        post: req.body.postID,
+      });
+      const dataToSave = await newComment.save();
+      await Post.findByIdAndUpdate(
+        { _id: req.body.postID },
+        { $push: { listComment: dataToSave._doc._id } },
+        options
+      );
+      return res.status(200).json({
+        status: 1,
+        message: "create comment success",
+        comment: dataToSave._doc,
+      });
+    } else {
+      const newComment = new Comment({
+        user: req.user._id,
+        content: req.body.content,
+        post: req.body.postID,
+      });
+      const dataToSave = await newComment.save();
+      await Post.findByIdAndUpdate(
+        { _id: req.body.postID },
+        { $push: { listComment: dataToSave._doc._id } },
+        options
+      );
+      return res.status(200).json({
+        status: 1,
+        message: "create comment success",
+        comment: dataToSave._doc,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+module.exports = {
+  getPostByID,
+  getAllPost,
+  createPost,
+  likePost,
+  getComment,
+  createComment,
+  getCommentByID,
+};

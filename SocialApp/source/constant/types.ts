@@ -63,6 +63,7 @@ export interface CommentItem {
     name: string;
   };
   post: string;
+  _id: string;
 }
 
 export interface ImageFile {
@@ -83,7 +84,9 @@ export interface Post {
   currentPage?: number;
   post?: PostItem;
   listComment?: Array<CommentItem>;
-  total: number;
+  total?: number;
+  comment?: CommentItem;
+  postID?: string;
 }
 
 export interface ListUser {

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import {View, Text, FlatList} from 'react-native';
 import styled from 'styled-components';
-import {useAppDispatch} from '../../app/hook';
-import CommentItem from '../../components/CommentItem';
+import {useAppDispatch, useAppSelector} from '../../app/hook';
 import {
   BLACK,
   BLUE_GRAY,
@@ -11,10 +10,17 @@ import {
   WHITE,
 } from '../../constant/color';
 import {HEIGHT, normalize, WIDTH} from '../../constant/dimensions';
-import {requestGetComment} from '../../feature/post/postSlice';
+import {
+  requestCreateComment,
+  requestGetComment,
+  updateListComment,
+} from '../../feature/post/postSlice';
 import LoadingScreen from '../../components/LoadingScreen';
 import {Controller, SubmitHandler, useForm} from 'react-hook-form';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {Socket} from 'socket.io-client';
+import CommentComponent from '../../components/CommentComponent';
+import {socket} from '../../socket/SocketClient';
 
 interface CommentPostProps {
   route: {
@@ -80,25 +86,22 @@ const ToolButton = styled.TouchableOpacity`
 export default function CommentPostScreen(props: CommentPostProps) {
   const dispatch = useAppDispatch();
   const {control, handleSubmit, resetField} = useForm<FormValues>();
+  const refSocket = React.useRef<Socket>();
 
-  const [listComment, setListComment] = React.useState([]);
+  const listComment = useAppSelector(state => state.post.listComment);
   const [isLoading, setIsLoading] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [total, setTotal] = React.useState(1);
   const [isRefresh, setIsRefresh] = React.useState(false);
 
-  const getListPost = async (page: number) => {
+  const getListComment = async (page: number) => {
     setIsLoading(true);
     const response = await dispatch(
       requestGetComment({page, postID: props.route.params.postID}),
     ).unwrap();
-    console.log(response);
     if (response.status) {
       if (page === 1) {
-        setListComment(response.listComment);
         setTotal(response.total);
-      } else {
-        setListComment([...listComment, ...response.listComment]);
       }
       setCurrentPage(page);
     }
@@ -118,12 +121,48 @@ export default function CommentPostScreen(props: CommentPostProps) {
 
   const onRefresh = () => {
     setIsRefresh(true);
-    getListPost(1);
+    getListComment(1);
     setIsRefresh(false);
   };
 
+  const onCreateComment: SubmitHandler<FormValues> = async data => {
+    if (data.content === '') {
+      return;
+    }
+    resetField('content');
+    setIsLoading(true);
+    const response = await dispatch(
+      requestCreateComment({
+        content: data.content,
+        image: null,
+        postID: props.route.params.postID,
+      }),
+    ).unwrap();
+    if (response.status) {
+      refSocket?.current?.emit('createComment', response.comment);
+    }
+    setIsLoading(false);
+  };
+
   React.useEffect(() => {
-    getListPost(1);
+    getListComment(1);
+  }, []);
+
+  React.useEffect(() => {
+    socket.on('updateComment', comment => {
+      dispatch(updateListComment({comment}));
+    });
+    return () => {
+      socket.off('updateComment');
+      socket.disconnect();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    refSocket.current = socket;
   }, []);
 
   return (
@@ -131,23 +170,20 @@ export default function CommentPostScreen(props: CommentPostProps) {
       <HeaderContainer>
         <HeaderText>Bình luận</HeaderText>
       </HeaderContainer>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <FlatList
-          data={listComment}
-          contentContainerStyle={{flexGrow: 1}}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => {
-            return <CommentItem />;
-          }}
-          refreshing={isRefresh}
-          onRefresh={onRefresh}
-          onEndReached={onLoadMore}
-          onEndReachedThreshold={0.5}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+
+      <FlatList
+        data={listComment}
+        contentContainerStyle={{flexGrow: 1}}
+        keyExtractor={item => item._id}
+        renderItem={({item}) => {
+          return <CommentComponent item={item} />;
+        }}
+        refreshing={isRefresh}
+        onRefresh={onRefresh}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
+        showsVerticalScrollIndicator={false}
+      />
       <BottomContainer>
         <Controller
           name="content"
@@ -164,7 +200,7 @@ export default function CommentPostScreen(props: CommentPostProps) {
             );
           }}
         />
-        <ToolButton>
+        <ToolButton onPress={handleSubmit(onCreateComment)}>
           <FontAwesome5
             name={'paper-plane'}
             solid={true}
@@ -173,6 +209,7 @@ export default function CommentPostScreen(props: CommentPostProps) {
           />
         </ToolButton>
       </BottomContainer>
+      {isLoading && <LoadingScreen />}
     </Container>
   );
 }

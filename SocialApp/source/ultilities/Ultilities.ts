@@ -21,7 +21,7 @@ export const sortID = (s1: string, s2: string) => {
   return `${s1}_${s2}`;
 };
 
-export const timeAgo = (time: number) => {
+export const timeAgo = (time: string | number | Date) => {
   const numberTime = new Date(time).getTime();
   const now = Date.now();
   const ago = Math.round((now - numberTime) / 1000);

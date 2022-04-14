@@ -66,7 +66,7 @@ export default function HomeScreen() {
   const avatarUser = useAppSelector(state => state.auth.avatar);
   const userID = useAppSelector(state => state.auth.id);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [listPost, setListPost] = React.useState([]);
+  const listPost = useAppSelector(state => state.post.listPost);
   const [totalPost, setTotalPost] = React.useState(1);
   const navigation = useNavigation<HomeScreenProps>();
   const dispatch = useAppDispatch();
@@ -86,10 +86,7 @@ export default function HomeScreen() {
     const response = await dispatch(requestGetPost({page})).unwrap();
     if (response.status) {
       if (page === 1) {
-        setListPost(response.listPost);
         setTotalPost(response.total);
-      } else {
-        setListPost([...listPost, ...response.listPost]);
       }
       setCurrentPage(page);
     }
@@ -123,7 +120,7 @@ export default function HomeScreen() {
 
   React.useEffect(() => {
     socket.on('updatePost', post => {
-      setListPost([post, ...listPost]);
+      dispatch(updateListPost({post}));
     });
     return () => {
       socket.off('updatePost');
@@ -134,7 +131,7 @@ export default function HomeScreen() {
   return (
     <FlatList
       data={listPost}
-      keyExtractor={(_, index) => index.toString()}
+      keyExtractor={item => item._id}
       renderItem={renderItem}
       contentContainerStyle={{flexGrow: 1, backgroundColor: BLUE_GRAY_200}}
       ListHeaderComponent={() => (

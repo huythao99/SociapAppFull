@@ -253,9 +253,9 @@ export default function CreatePostScreen() {
       }),
     ).unwrap();
     setIsLoading(false);
-    // refSocket?.current?.emit('createPost', {
-    //   ...response.post,
-    // });
+    refSocket?.current?.emit('createPost', {
+      ...response.post,
+    });
     if (response?.status) {
       navigation.goBack();
     }
