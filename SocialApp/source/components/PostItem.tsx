@@ -13,7 +13,7 @@ import {
 import {showAlert, timeAgo} from '../ultilities/Ultilities';
 import {Image, TouchableOpacity, View} from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {useAppDispatch} from '../app/hook';
+import {useAppDispatch, useAppSelector} from '../app/hook';
 // import {requestLikePost} from '../features/post/postSlice';
 import {useNavigation} from '@react-navigation/native';
 import {PostItem as PostItemType, RootStackParamList} from '../constant/types';
@@ -40,13 +40,6 @@ type AlignSelfProps = {
 type ReactionButton = {
   isLiked: Boolean;
 };
-
-const Container = styled.View`
-  margin-vertical: ${HEIGHT / 100}px;
-  padding-top: ${HEIGHT / 100}px;
-  width: 100%;
-  background-color: ${WHITE};
-`;
 
 const HeaderContainer = styled.View`
   flex-direction: row;
@@ -145,6 +138,8 @@ const ReactionText = styled.Text`
 function PostItem(props: PostItemProps) {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<HomeScreenProps>();
+  const uid = useAppSelector(state => state.auth.id);
+  const avatar = useAppSelector(state => state.auth.avatar);
   const [timer, setTimer] = React.useState(null);
   const [isLiked, setIsLiked] = React.useState(false);
   const [numOfLike, setNumOfLike] = React.useState(0);
@@ -210,7 +205,12 @@ function PostItem(props: PostItemProps) {
         <UserContainer
           onPress={() => props.onClickUserOfPost(props.item.creater._id)}>
           <UserAvatarImage
-            source={{uri: props.item.creater.avatar || DEFAULT_AVATAR}}
+            source={{
+              uri:
+                (props.item.creater._id === uid
+                  ? avatar
+                  : props.item.creater.avatar) || DEFAULT_AVATAR,
+            }}
           />
           <View>
             <UserNameText>{props.item.creater.name}</UserNameText>

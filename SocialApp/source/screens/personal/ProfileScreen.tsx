@@ -315,8 +315,14 @@ export default function ProfileScreen(props: ProfileProps) {
     const response = await launchImageLibrary({
       mediaType: 'photo',
     });
+    if (response.didCancel) {
+      return;
+    } else if (response.errorCode) {
+      showAlert(response.errorMessage, 'danger');
+      return;
+    }
     if (isChangeAvatar) {
-      if (response.assets[0]) {
+      if (response?.assets) {
         setIsVisibleModal(false);
         const image = {
           fileName: response.assets[0].fileName,
@@ -327,15 +333,12 @@ export default function ProfileScreen(props: ProfileProps) {
         const res = await dispatch(requestUpdateAvatarUser({image})).unwrap();
         if (res.status) {
           showAlert('Cập nhật ảnh đại diện thành công', 'success');
-          console.log(res.avatar);
           setUserAvatar(res.avatar);
         }
         setIsLoading(false);
-      } else {
-        showAlert('Đã có lỗi xảy ra trong quá trình lấy ảnh', 'warning');
       }
     } else {
-      if (response.assets[0]) {
+      if (response?.assets) {
         setIsVisibleModal(false);
         const image = {
           fileName: response.assets[0].fileName,
@@ -351,8 +354,6 @@ export default function ProfileScreen(props: ProfileProps) {
           setCoverImage(res.coverImage);
         }
         setIsLoading(false);
-      } else {
-        showAlert('Đã có lỗi xảy ra trong quá trình lấy ảnh', 'warning');
       }
     }
   };
@@ -362,8 +363,46 @@ export default function ProfileScreen(props: ProfileProps) {
       mediaType: 'photo',
       cameraType: 'front',
     });
+    if (response.didCancel) {
+      return;
+    } else if (response.errorCode) {
+      showAlert(response.errorMessage, 'danger');
+      return;
+    }
     if (isChangeAvatar) {
+      if (response?.assets) {
+        setIsVisibleModal(false);
+        const image = {
+          fileName: response.assets[0].fileName,
+          type: response.assets[0].type,
+          uri: response.assets[0].uri,
+        };
+        setIsLoading(true);
+        const res = await dispatch(requestUpdateAvatarUser({image})).unwrap();
+        if (res.status) {
+          showAlert('Cập nhật ảnh đại diện thành công', 'success');
+          setUserAvatar(res.avatar);
+        }
+        setIsLoading(false);
+      }
     } else {
+      if (response.assets) {
+        setIsVisibleModal(false);
+        const image = {
+          fileName: response.assets[0].fileName,
+          type: response.assets[0].type,
+          uri: response.assets[0].uri,
+        };
+        setIsLoading(true);
+        const res = await dispatch(
+          requestUpdateCoverImageUser({image}),
+        ).unwrap();
+        if (res.status) {
+          showAlert('Cập nhật ảnh đại diện thành công', 'success');
+          setCoverImage(res.coverImage);
+        }
+        setIsLoading(false);
+      }
     }
   };
 

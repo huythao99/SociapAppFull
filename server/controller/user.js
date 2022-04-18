@@ -2,8 +2,9 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { ITEMS_IN_PAGE } = require("../constants");
+const { ITEMS_IN_PAGE, WIDTH_IMAGE, HEIGHT_IMAGE } = require("../constants");
 const cloudinary = require("cloudinary");
+const sharp = require("sharp");
 
 require("dotenv").config();
 const {
@@ -211,6 +212,7 @@ const updateAvatarUser = async (req, res) => {
       return res.status(400).json({ status: 0, message: "cannot read file" });
     }
   } catch (error) {
+    console.log(error);
     return res.status(400).json({ status: 0, message: error.message });
   }
 };
@@ -236,7 +238,6 @@ const updateCoverImageUser = async (req, res) => {
       return res.status(400).json({ status: 0, message: "cannot read file" });
     }
   } catch (error) {
-    console.log(error);
     return res.status(400).json({ status: 0, message: error.message });
   }
 };

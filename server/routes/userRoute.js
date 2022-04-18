@@ -7,7 +7,6 @@ const {
   updateCoverImageUser,
 } = require("./../controller/user");
 const multer = require("multer");
-const { MAX_SIZE } = require("../constants");
 
 const userRoute = express.Router();
 
@@ -34,7 +33,6 @@ const upload = multer({
       return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
     }
   },
-  limits: { fileSize: MAX_SIZE },
 }).single("file");
 
 // get all User

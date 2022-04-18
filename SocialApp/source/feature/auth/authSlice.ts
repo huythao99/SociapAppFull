@@ -176,6 +176,12 @@ export const authSlice = createSlice({
     loadingSplash: state => {
       state.isLoadingSplash = false;
     },
+    updateAvatar: (state, action) => {
+      state.avatar = action.payload.avatar;
+    },
+    updateCoverImage: (state, action) => {
+      state.coverImage = action.payload.coverImage;
+    },
   },
   extraReducers: builder => {
     // sign in
@@ -215,6 +221,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const {loadingSplash} = authSlice.actions;
+export const {loadingSplash, updateAvatar, updateCoverImage} =
+  authSlice.actions;
 
 export default authSlice.reducer;

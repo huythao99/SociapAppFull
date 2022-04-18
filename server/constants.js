@@ -1,4 +1,5 @@
 const ITEMS_IN_PAGE = 20;
-const MAX_SIZE = 1 * 1000 * 1000;
+const WIDTH_IMAGE = 400;
+const HEIGHT_IMAGE = 400;
 
-module.exports = { ITEMS_IN_PAGE, MAX_SIZE };
+module.exports = { ITEMS_IN_PAGE, WIDTH_IMAGE, HEIGHT_IMAGE };

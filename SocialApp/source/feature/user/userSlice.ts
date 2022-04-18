@@ -8,6 +8,7 @@ import {
   getUpdateAvatarUserUrl,
   getUpdateCoverImageUserUrl,
 } from '../../apis/url';
+import {updateAvatar, updateCoverImage} from '../auth/authSlice';
 
 interface UserState {}
 
@@ -84,7 +85,7 @@ export const requestGetDataUser = createAsyncThunk(
 
 export const requestUpdateAvatarUser = createAsyncThunk(
   'user/requestUpdateAvatarUser',
-  async ({image}: {image: ImageFile}): Promise<Partial<DataUser>> => {
+  async ({image}: {image: ImageFile}, thunkAPI): Promise<Partial<DataUser>> => {
     try {
       let formData = new FormData();
       formData.append(
@@ -103,6 +104,13 @@ export const requestUpdateAvatarUser = createAsyncThunk(
         formData,
         {},
       );
+      if (res.status) {
+        thunkAPI.dispatch(
+          updateAvatar({
+            avatar: res.avatar,
+          }),
+        );
+      }
       return new Promise(resolve => {
         resolve({
           status: true,
@@ -122,7 +130,7 @@ export const requestUpdateAvatarUser = createAsyncThunk(
 
 export const requestUpdateCoverImageUser = createAsyncThunk(
   'user/requestUpdateCoverImageUser',
-  async ({image}: {image: ImageFile}): Promise<Partial<DataUser>> => {
+  async ({image}: {image: ImageFile}, thunkAPI): Promise<Partial<DataUser>> => {
     try {
       let formData = new FormData();
       formData.append(
@@ -141,6 +149,13 @@ export const requestUpdateCoverImageUser = createAsyncThunk(
         formData,
         {},
       );
+      if (res.status) {
+        thunkAPI.dispatch(
+          updateCoverImage({
+            coverImage: res.coverImage,
+          }),
+        );
+      }
       return new Promise(resolve => {
         resolve({
           status: true,
