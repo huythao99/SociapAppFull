@@ -97,7 +97,7 @@ const likePost = async (req, res) => {
       options
     );
     return res.status(200).json({
-      message: "request success",
+      message: "like post success",
       status: 1,
       post: { ...dataUpdate._doc },
     });

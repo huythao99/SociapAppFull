@@ -77,9 +77,9 @@ export default function HomeScreen() {
   };
 
   const onClickUserOfPost = (uid: string) => {
-    // navigation.navigate('Profile', {
-    //   uid: uid,
-    // });
+    navigation.navigate('ProfileScreen', {
+      uid: uid,
+    });
   };
 
   const getListPost = async (page: number) => {

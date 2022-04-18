@@ -4,8 +4,10 @@ const {
   getAllUser,
   getDataUser,
   updateAvatarUser,
+  updateCoverImageUser,
 } = require("./../controller/user");
 const multer = require("multer");
+const { MAX_SIZE } = require("../constants");
 
 const userRoute = express.Router();
 
@@ -32,6 +34,7 @@ const upload = multer({
       return cb(new Error("Only .png, .jpg and .jpeg format allowed!"));
     }
   },
+  limits: { fileSize: MAX_SIZE },
 }).single("file");
 
 // get all User
@@ -42,5 +45,8 @@ userRoute.get("/getDataUser", verifyToken, getDataUser);
 
 // update avatar user
 userRoute.patch("/updateAvatar", verifyToken, upload, updateAvatarUser);
+
+// update cover image
+userRoute.patch("/updateCoverImage", verifyToken, upload, updateCoverImageUser);
 
 module.exports = userRoute;

@@ -28,6 +28,7 @@ import {DEFAULT_AVATAR, DEFAULT_COVER_IMAGE} from '../../constant/constants';
 import {
   requestGetDataUser,
   requestUpdateAvatarUser,
+  requestUpdateCoverImageUser,
 } from '../../feature/user/userSlice';
 import {showAlert} from '../../ultilities/Ultilities';
 import LoadingScreen from '../../components/LoadingScreen';
@@ -44,6 +45,9 @@ interface HeaderProps {
   onPress: () => void;
   onShowAvatar: () => void;
   onShowCoverImage: () => void;
+  canChangeAvatar: boolean;
+  onChangeCoverImage: () => void;
+  onGoBack: () => void;
 }
 
 type ProfileScreenProps = StackNavigationProp<
@@ -85,6 +89,25 @@ const HeaderContainer = styled.View`
   margin-bottom: ${HEIGHT / 100}px;
 `;
 
+const RowHeaderContainer = styled.View`
+  background-color: ${TRANSPARENT};
+  position: absolute;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-vertical: ${(WIDTH / 100) * 2}px;
+  padding-horizontal: ${(WIDTH / 100) * 2}px;
+  left: 0;
+  right: 0;
+`;
+
+const ButtonBack = styled.TouchableOpacity`
+  width: ${(WIDTH / 100) * 8}px;
+  height: ${(WIDTH / 100) * 8}px;
+  justify-content: center;
+  align-items: center;
+`;
+
 const ButtonChangeAvatar = styled.TouchableOpacity`
   width: ${(WIDTH / 100) * 8}px;
   height: ${(WIDTH / 100) * 8}px;
@@ -95,6 +118,11 @@ const ButtonChangeAvatar = styled.TouchableOpacity`
   position: absolute;
   right: 0px;
   top: ${(WIDTH / 100) * 20}px;
+`;
+
+const ButtonChangeCoverImage = styled.TouchableOpacity`
+  width: ${(WIDTH / 100) * 8}px;
+  height: ${(WIDTH / 100) * 8}px;
 `;
 
 const UserNameText = styled.Text`
@@ -157,16 +185,36 @@ const HeaderFlatList = React.memo((props: HeaderProps) => {
           }}
           resizeMode="cover"
         />
+        <RowHeaderContainer>
+          <ButtonBack onPress={props.onGoBack}>
+            <FontAwesome5
+              name="arrow-left"
+              size={(WIDTH / 100) * 5}
+              color={WHITE}
+            />
+          </ButtonBack>
+          {props.onShowAvatar && (
+            <ButtonChangeCoverImage onPress={props.onChangeCoverImage}>
+              <FontAwesome5
+                name="edit"
+                size={(WIDTH / 100) * 5}
+                color={WHITE}
+              />
+            </ButtonChangeCoverImage>
+          )}
+        </RowHeaderContainer>
       </TouchableOpacity>
       <AvatarImageContainer onPress={props.onShowAvatar}>
         <AvatarImage source={{uri: props.avatarUser}} />
-        <ButtonChangeAvatar onPress={props.onPress}>
-          <FontAwesome5
-            name="user-edit"
-            size={(WIDTH / 100) * 4}
-            color={BLUE_700}
-          />
-        </ButtonChangeAvatar>
+        {props.canChangeAvatar && (
+          <ButtonChangeAvatar onPress={props.onPress}>
+            <FontAwesome5
+              name="user-edit"
+              size={(WIDTH / 100) * 4}
+              color={BLUE_700}
+            />
+          </ButtonChangeAvatar>
+        )}
         <UserNameText>{props.userName}</UserNameText>
       </AvatarImageContainer>
     </HeaderContainer>
@@ -206,6 +254,10 @@ export default function ProfileScreen(props: ProfileProps) {
       ],
     };
   });
+
+  const onGoBack = () => {
+    navigation.goBack();
+  };
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
@@ -250,6 +302,11 @@ export default function ProfileScreen(props: ProfileProps) {
     setIsChangeAvatar(true);
   };
 
+  const onChangeCoverImage = () => {
+    setIsVisibleModal(true);
+    setIsChangeAvatar(false);
+  };
+
   const onCloseModal = () => {
     setIsVisibleModal(false);
   };
@@ -270,6 +327,7 @@ export default function ProfileScreen(props: ProfileProps) {
         const res = await dispatch(requestUpdateAvatarUser({image})).unwrap();
         if (res.status) {
           showAlert('Cập nhật ảnh đại diện thành công', 'success');
+          console.log(res.avatar);
           setUserAvatar(res.avatar);
         }
         setIsLoading(false);
@@ -277,6 +335,25 @@ export default function ProfileScreen(props: ProfileProps) {
         showAlert('Đã có lỗi xảy ra trong quá trình lấy ảnh', 'warning');
       }
     } else {
+      if (response.assets[0]) {
+        setIsVisibleModal(false);
+        const image = {
+          fileName: response.assets[0].fileName,
+          type: response.assets[0].type,
+          uri: response.assets[0].uri,
+        };
+        setIsLoading(true);
+        const res = await dispatch(
+          requestUpdateCoverImageUser({image}),
+        ).unwrap();
+        if (res.status) {
+          showAlert('Cập nhật ảnh đại diện thành công', 'success');
+          setCoverImage(res.coverImage);
+        }
+        setIsLoading(false);
+      } else {
+        showAlert('Đã có lỗi xảy ra trong quá trình lấy ảnh', 'warning');
+      }
     }
   };
 
@@ -294,12 +371,12 @@ export default function ProfileScreen(props: ProfileProps) {
     // if (userID === props.route.params.uid) {
     //   showAlert('Chắc năng chat với chính mình đang phát triển', 'info');
     // } else {
-    //   navigation.navigate('Chat', {
-    //     friendAvatar: userAvatar,
-    //     friendName: userName,
-    //     friendID: props.route.params.uid,
-    //     friendEmail: userEmail,
-    //   });
+    //   // navigation.navigate('Chat', {
+    //   //   friendAvatar: userAvatar,
+    //   //   friendName: userName,
+    //   //   friendID: props.route.params.uid,
+    //   //   friendEmail: userEmail,
+    //   // });
     // }
   };
 
@@ -323,6 +400,10 @@ export default function ProfileScreen(props: ProfileProps) {
     setIsLoading(false);
   };
 
+  const onLoadMore = () => {
+    getDataUser(currentPage + 1);
+  };
+
   const renderItem = ({item}) => {
     return <PostItem uid={userId} item={item} onClickUserOfPost={() => {}} />;
   };
@@ -341,15 +422,20 @@ export default function ProfileScreen(props: ProfileProps) {
           data={listPost}
           keyExtractor={(_, index: number) => index.toString()}
           renderItem={renderItem}
+          onEndReached={onLoadMore}
+          onEndReachedThreshold={0.5}
           contentContainerStyle={{flexGrow: 1, backgroundColor: BLUE_GRAY}}
           ListHeaderComponent={() => (
             <HeaderFlatList
+              canChangeAvatar={userId === props.route.params.uid}
               userName={userName}
               coverImage={coverImage ? coverImage : DEFAULT_COVER_IMAGE}
               avatarUser={userAvatar ? userAvatar : DEFAULT_AVATAR}
               onPress={onChangeAvatar}
               onShowAvatar={onShowAvatar}
               onShowCoverImage={onShowCoverImage}
+              onChangeCoverImage={onChangeCoverImage}
+              onGoBack={onGoBack}
             />
           )}
         />

@@ -52,6 +52,7 @@ export const requestSignin = createAsyncThunk(
       };
       const res = await callAPI('post', `${getSignInUrl()}`, data, {});
       if (res?.status === 1) {
+        console.log(res);
         await AsyncStorage.setItem('user', JSON.stringify(res));
         return new Promise(resolve => {
           resolve({
@@ -126,7 +127,6 @@ export const requestSignUp = createAsyncThunk(
         });
       }
     } catch (error) {
-      console.log('status', error.message);
       showAlert(error.message, 'danger');
       return new Promise(resolve => {
         resolve({

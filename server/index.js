@@ -49,7 +49,8 @@ cloudinary.config({
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://my-social-app-server.herokuapp.com",
+    // origin: "https://my-social-app-server.herokuapp.com",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });

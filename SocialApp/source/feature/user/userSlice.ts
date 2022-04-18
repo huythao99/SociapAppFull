@@ -6,6 +6,7 @@ import {
   getDataUserUrl,
   getListUserUrl,
   getUpdateAvatarUserUrl,
+  getUpdateCoverImageUserUrl,
 } from '../../apis/url';
 
 interface UserState {}
@@ -105,7 +106,45 @@ export const requestUpdateAvatarUser = createAsyncThunk(
       return new Promise(resolve => {
         resolve({
           status: true,
-          avatar: res.uriImage,
+          avatar: res.avatar,
+        });
+      });
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestUpdateCoverImageUser = createAsyncThunk(
+  'user/requestUpdateCoverImageUser',
+  async ({image}: {image: ImageFile}): Promise<Partial<DataUser>> => {
+    try {
+      let formData = new FormData();
+      formData.append(
+        'file',
+        JSON.parse(
+          JSON.stringify({
+            name: `${Date.now()}_${image.fileName}`,
+            uri: image.uri,
+            type: image.type,
+          }),
+        ),
+      );
+      const res = await callAPI(
+        'patch',
+        getUpdateCoverImageUserUrl(),
+        formData,
+        {},
+      );
+      return new Promise(resolve => {
+        resolve({
+          status: true,
+          coverImage: res.coverImage,
         });
       });
     } catch (error) {

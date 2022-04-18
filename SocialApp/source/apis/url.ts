@@ -50,6 +50,10 @@ export const getUpdateAvatarUserUrl = () => {
   return '/api/user/updateAvatar';
 };
 
+export const getUpdateCoverImageUserUrl = () => {
+  return '/api/user/updateCoverImage';
+};
+
 // chat
 export const getConversationUrl = () => {
   return '/api/chat/getConversation';

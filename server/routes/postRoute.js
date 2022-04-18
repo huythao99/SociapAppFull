@@ -9,6 +9,7 @@ const {
   getComment,
   createComment,
 } = require("../controller/post");
+const { MAX_SIZE } = require("../constants");
 
 const postRoute = express.Router();
 const imageStorage = multer.diskStorage({
@@ -19,6 +20,7 @@ const imageStorage = multer.diskStorage({
     // file.fieldname is name of the field (image)
     // path.extname get the uploaded file extension
   },
+  limits: { fileSize: MAX_SIZE },
 });
 const upload = multer({
   storage: imageStorage,

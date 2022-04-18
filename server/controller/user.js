@@ -3,6 +3,7 @@ const Post = require("../models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { ITEMS_IN_PAGE } = require("../constants");
+const cloudinary = require("cloudinary");
 
 require("dotenv").config();
 const {
@@ -46,7 +47,7 @@ const signIn = async (req, res) => {
         const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY);
         const option = { new: true };
 
-        await User.findByIdAndUpdate(
+        const response = await User.findByIdAndUpdate(
           { _id: user._id },
           { token: token, fcmToken: req.body.fcmtoken },
           option
@@ -61,6 +62,8 @@ const signIn = async (req, res) => {
             name: user.name,
             id: user._id,
             ...req.body,
+            avatar: response.avatar,
+            coverImage: response.coverImage,
           });
       }
     }
@@ -189,27 +192,51 @@ const getDataUser = async (req, res) => {
 
 const updateAvatarUser = async (req, res) => {
   try {
-    console.log(req.file);
     if (req.file) {
       const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
         public_id: "avatar" + req.file.filename + Date.now(),
       });
       const option = { new: true };
-      const response = await User.findByIdAndUpdate(
-        { _id: req.body._id },
-        { avatar: uriImage },
+      await User.findByIdAndUpdate(
+        { _id: req.user._id },
+        { avatar: uriImage.url },
         option
       );
-      console.log(response);
       return res.status(200).json({
         status: 1,
         message: "Update success",
-        avatar: uriImage,
+        avatar: uriImage.url,
       });
     } else {
       return res.status(400).json({ status: 0, message: "cannot read file" });
     }
   } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+const updateCoverImageUser = async (req, res) => {
+  try {
+    if (req.file) {
+      const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
+        public_id: "cover_image" + req.file.filename + Date.now(),
+      });
+      const option = { new: true };
+      await User.findByIdAndUpdate(
+        { _id: req.user._id },
+        { coverImage: uriImage.url },
+        option
+      );
+      return res.status(200).json({
+        status: 1,
+        message: "Update success",
+        coverImage: uriImage.url,
+      });
+    } else {
+      return res.status(400).json({ status: 0, message: "cannot read file" });
+    }
+  } catch (error) {
+    console.log(error);
     return res.status(400).json({ status: 0, message: error.message });
   }
 };
@@ -222,4 +249,5 @@ module.exports = {
   getAllUser,
   getDataUser,
   updateAvatarUser,
+  updateCoverImageUser,
 };
