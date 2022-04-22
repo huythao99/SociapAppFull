@@ -11,7 +11,11 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function TopTabs() {
   return (
-    <Tab.Navigator tabBar={props => <MyTabBar {...props} />}>
+    <Tab.Navigator
+      tabBar={props => <MyTabBar {...props} />}
+      screenOptions={{
+        swipeEnabled: false,
+      }}>
       <Tab.Screen name="HomeScreen" component={HomeScreen} />
       <Tab.Screen name="PeopleScreen" component={PeopleScreen} />
       <Tab.Screen name="MessageScreen" component={MessageScreen} />

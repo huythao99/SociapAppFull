@@ -18,9 +18,9 @@ export type RootStackParamList = {
   CreatePostScreen: undefined;
   MessageScreen: undefined;
   ChatScreen: {
-    friendID: string;
-    friendAvatar: string;
-    friendName: string;
+    conversationID?: string;
+    userCreatorID?: string;
+    participantID?: Array<string>;
   };
   DetailPostScreen: {
     idPost: string;
@@ -108,29 +108,29 @@ export interface DataUser {
 
 export interface ConversationItem {
   _id: string;
-  content: string;
-  senderID: {
+  lastMessage: string;
+  userCreator: {
     _id: string;
     name: string;
     avatar: string;
   };
-  receiverID: {
+  participants: Array<{
     _id: string;
     name: string;
     avatar: string;
-  };
+  }>;
   timeSend: number;
-  message?: Array<string>;
 }
 
 export interface Conversation {
-  status: Boolean;
-  listConversation: Array<ConversationItem>;
-  currentPage: Number;
+  status?: boolean;
+  listConversation?: Array<ConversationItem>;
+  currentPage?: number;
+  total?: number;
 }
 
 export interface MessageItem {
-  timeCreate: Number;
+  timeCreate: number;
   content: string;
   urlImage: string;
   senderID: string;
@@ -143,7 +143,8 @@ export interface MessageItem {
 }
 
 export interface Message {
-  status: Boolean;
-  listMessage: Array<MessageItem>;
-  currentPage: Number;
+  status?: boolean;
+  listMessage?: Array<MessageItem>;
+  currentPage?: number;
+  total?: number;
 }

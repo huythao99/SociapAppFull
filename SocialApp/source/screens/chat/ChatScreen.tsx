@@ -30,10 +30,9 @@ import Animated, {SequencedTransition} from 'react-native-reanimated';
 interface ChatProps {
   route: {
     params: {
-      friendID: string;
-      friendAvatar: string;
-      friendName: string;
-      friendEmail?: string;
+      conversationID?: string;
+      userCreatorID?: string;
+      participantID?: Array<string>;
     };
   };
 }
@@ -134,7 +133,10 @@ export default function ChatScreen(props: ChatProps) {
   const listMessage = useAppSelector(state => state.message.listMessage);
   const [uriImage, setUriImage] = React.useState(null);
   const [uriVideo, setUriVideo] = React.useState(null);
-  const currentPage = useAppSelector(state => state.message.currentPage);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [total, setTotal] = React.useState(1);
+  const [friendName, setFriendName] = React.useState(null);
+  const [friendAvatar, setFriendAvatar] = React.useState(null);
 
   const refSocket = React.useRef<Socket>();
 
@@ -182,34 +184,29 @@ export default function ChatScreen(props: ChatProps) {
       return;
     }
     resetField('content');
-    refSocket.current.emit(
-      'sendMessage',
-      sortID(userID, props.route.params.friendID),
-      {
-        content: data.content,
-        timeCreate: Date.now,
-        urlImage: null,
-        senderID: userID,
-        receiverID: {
-          _id: props.route.params.friendID,
-          name: props.route.params.friendName,
-          avatar: props.route.params.friendAvatar,
-        },
-      },
-    );
-    dispatch(
-      updateListMessage({
-        content: data.content,
-        timeCreate: Date.now(),
-        urlImage: null,
-        senderID: userID,
-        receiverID: {
-          _id: props.route.params.friendID,
-          name: props.route.params.friendName,
-          avatar: props.route.params.friendAvatar,
-        },
-      }),
-    );
+    // refSocket.current.emit(
+    //   'sendMessage',
+    //   sortID(userID, props.route.params.participantID),
+    //   {
+    //     content: data.content,
+    //     timeCreate: Date.now,
+    //     urlImage: null,
+    //     senderID: userID,
+    //   },
+    // );
+    // dispatch(
+    //   updateListMessage({
+    //     content: data.content,
+    //     timeCreate: Date.now(),
+    //     urlImage: null,
+    //     senderID: userID,
+    //     receiverID: {
+    //       _id: props.route.params.friendID,
+    //       name: props.route.params.friendName,
+    //       avatar: props.route.params.friendAvatar,
+    //     },
+    //   }),
+    // );
   };
 
   const renderItem = ({item, index}) => {
@@ -221,32 +218,42 @@ export default function ChatScreen(props: ChatProps) {
         item={item}
         userID={userID}
         isLastMessage={isLastMessage}
-        friend={{friendAvatar: props.route.params.friendAvatar}}
+        friend={{friendAvatar}}
       />
     );
   };
 
-  const getData = () => {
-    dispatch(
-      requestGetMessage({page: 1, receiverID: props.route.params.friendID}),
-    );
+  const getData = async (page: number) => {
+    console.log(props.route.params.participantID);
+    const res = await dispatch(
+      requestGetMessage({
+        page: page,
+        participants: props.route.params.participantID,
+      }),
+    ).unwrap();
+    if (res.status) {
+      if (page === 1) {
+        setTotal(res.total);
+      }
+      setCurrentPage(res.currentPage);
+    }
   };
 
   React.useEffect(() => {
-    getData();
+    getData(1);
+    return () => {
+      console.log('run');
+    };
   }, []);
 
   React.useEffect(() => {
-    socketChat.emit('join room', sortID(userID, props.route.params.friendID));
+    socketChat.emit('join room', props.route.params.conversationID);
     socketChat.on('receiverMessage', message => {
       dispatch(updateListMessage({...message}));
     });
     refSocket.current = socketChat;
     return () => {
-      socketChat.emit(
-        'leave room',
-        sortID(userID, props.route.params.friendID),
-      );
+      socketChat.emit('leave room', props.route.params.conversationID);
       socketChat.off('receiverMessage');
     };
   }, []);
@@ -262,10 +269,8 @@ export default function ChatScreen(props: ChatProps) {
           />
         </BackButton>
         <UserButton>
-          <UserHeaderImage
-            source={{uri: props.route.params.friendAvatar || DEFAULT_AVATAR}}
-          />
-          <UserNameText>{props.route.params.friendName}</UserNameText>
+          <UserHeaderImage source={{uri: friendAvatar || DEFAULT_AVATAR}} />
+          <UserNameText>{friendName}</UserNameText>
         </UserButton>
         <ToolButton>
           <FontAwesome5

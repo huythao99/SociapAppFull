@@ -22,6 +22,7 @@ export const requestGetConversation = createAsyncThunk(
           status: true,
           listConversation: res.listConversation,
           currentPage: res.current_page,
+          total: res.total,
         });
       });
     } catch (error) {

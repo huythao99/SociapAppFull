@@ -10,11 +10,7 @@ import {DEFAULT_AVATAR} from '../constant/constants';
 interface ConversationComponentProps {
   item: ConversationItem;
   uid: String;
-  onClickItem: (
-    friendID: string,
-    friendAvatar: string,
-    friendName: string,
-  ) => void;
+  onClickItem: (conversationID: string) => void;
 }
 
 const Container = styled.TouchableOpacity`
@@ -59,36 +55,23 @@ const ContentTimeText = styled(ContentMessageText)`
 
 function ConversationComponent(props: ConversationComponentProps) {
   return (
-    <Container
-      onPress={() =>
-        props.onClickItem(
-          props.uid === props.item.senderID._id
-            ? props.item.receiverID._id
-            : props.item.senderID._id,
-          props.uid === props.item.senderID._id
-            ? props.item.receiverID.avatar
-            : props.item.senderID.avatar,
-          props.uid === props.item.senderID._id
-            ? props.item.receiverID.name
-            : props.item.senderID.name,
-        )
-      }>
+    <Container onPress={() => props.onClickItem(props.item._id)}>
       <LeftContainer>
         <AvatarImage
           source={{
             uri:
-              props.uid === props.item.senderID._id
-                ? props.item.receiverID.avatar || DEFAULT_AVATAR
-                : props.item.senderID.avatar || DEFAULT_AVATAR,
+              props.uid === props.item.userCreator._id
+                ? props.item.userCreator.avatar || DEFAULT_AVATAR
+                : props.item.participants[0].avatar || DEFAULT_AVATAR,
           }}
         />
         <View>
           <UserNameText>
-            {props.uid === props.item.senderID._id
-              ? props.item.receiverID.name
-              : props.item.senderID.name}
+            {props.uid === props.item.userCreator._id
+              ? props.item.participants[0].name
+              : props.item.userCreator.name}
           </UserNameText>
-          <ContentMessageText>{props.item.content}</ContentMessageText>
+          <ContentMessageText>{props.item.lastMessage}</ContentMessageText>
         </View>
       </LeftContainer>
       <ContentTimeText>
@@ -102,7 +85,7 @@ function areEquals(
   prevProps: ConversationComponentProps,
   nextProps: ConversationComponentProps,
 ) {
-  if (prevProps.item.content === nextProps.item.content) {
+  if (prevProps.item.lastMessage === nextProps.item.lastMessage) {
     return true;
   }
   return false;

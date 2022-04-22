@@ -70,7 +70,9 @@ export default function MessageScreen() {
   const listConversation = useAppSelector(
     state => state.conversation.listConversation,
   );
-  const currentPage = useAppSelector(state => state.conversation.currentPage);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [total, setTotal] = React.useState(1);
+  const [isRefresh, setIsRefresh] = React.useState(false);
   const userId = useAppSelector(state => state.auth.id);
   const dispatch = useAppDispatch();
   const {control, handleSubmit} = useForm<FormValues>();
@@ -78,20 +80,32 @@ export default function MessageScreen() {
 
   const onSubmit: SubmitHandler<FormValues> = data => {};
 
-  const onClickItem = (
-    friendID: string,
-    friendAvatar: string,
-    friendName: string,
-  ) => {
+  const onClickItem = (conversationID: string) => {
     navigation.navigate('ChatScreen', {
-      friendID,
-      friendAvatar,
-      friendName,
+      conversationID,
     });
   };
 
-  const getData = () => {
-    dispatch(requestGetConversation({page: 1}));
+  const getData = async (page: number) => {
+    const res = await dispatch(requestGetConversation({page})).unwrap();
+    if (res.status) {
+      if (page === 1) {
+        setTotal(res.total);
+      }
+      setCurrentPage(res.currentPage);
+    }
+    setIsRefresh(false);
+  };
+
+  const onRefresh = () => {
+    setIsRefresh(true);
+    getData(1);
+  };
+
+  const onLoadMore = () => {
+    if (listConversation.length < total) {
+      getData(currentPage + 1);
+    }
   };
 
   const renderItem = ({item}: {item: ConversationItem}) => {
@@ -104,9 +118,9 @@ export default function MessageScreen() {
     );
   };
 
-  // React.useEffect(() => {
-  //   getData();
-  // }, []);
+  React.useEffect(() => {
+    getData(1);
+  }, []);
 
   React.useEffect(() => {
     socketChat.on('updateConversation', data => {
@@ -143,18 +157,23 @@ export default function MessageScreen() {
           );
         }}
       />
-      {listConversation.length === 0 ? (
-        <ContainerTitleText>
-          <TitleText>Hãy bắt đầu cuộc trò chuyện của bạn</TitleText>
-        </ContainerTitleText>
-      ) : (
-        <FlatList
-          contentContainerStyle={{flexGrow: 1}}
-          data={listConversation}
-          renderItem={renderItem}
-          keyExtractor={(_, index) => index.toString()}
-        />
-      )}
+      <FlatList
+        contentContainerStyle={{flexGrow: 1}}
+        data={listConversation}
+        renderItem={renderItem}
+        keyExtractor={item => item._id}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshing={isRefresh}
+        onRefresh={onRefresh}
+        ListEmptyComponent={() => {
+          return (
+            <ContainerTitleText>
+              <TitleText>Hãy bắt đầu cuộc trò chuyện của bạn</TitleText>
+            </ContainerTitleText>
+          );
+        }}
+      />
     </Container>
   );
 }

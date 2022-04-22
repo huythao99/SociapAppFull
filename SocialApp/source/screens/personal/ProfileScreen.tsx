@@ -407,16 +407,13 @@ export default function ProfileScreen(props: ProfileProps) {
   };
 
   const onClickSendMessage = () => {
-    // if (userID === props.route.params.uid) {
-    //   showAlert('Chắc năng chat với chính mình đang phát triển', 'info');
-    // } else {
-    //   // navigation.navigate('Chat', {
-    //   //   friendAvatar: userAvatar,
-    //   //   friendName: userName,
-    //   //   friendID: props.route.params.uid,
-    //   //   friendEmail: userEmail,
-    //   // });
-    // }
+    if (userId === props.route.params.uid) {
+      showAlert('Chắc năng chat với chính mình đang phát triển', 'info');
+    } else {
+      navigation.navigate('ChatScreen', {
+        participantID: [userId, props.route.params.uid],
+      });
+    }
   };
 
   const getDataUser = async (page: number) => {

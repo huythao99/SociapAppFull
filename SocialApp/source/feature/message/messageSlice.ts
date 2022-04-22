@@ -14,23 +14,25 @@ export const requestGetMessage = createAsyncThunk(
   'get/requestGetMessage',
   async ({
     page,
-    receiverID,
+    participants,
   }: {
     page: Number;
-    receiverID: String;
+    participants: Array<string>;
   }): Promise<Partial<Message>> => {
     try {
       const params = {
         page,
-        receiverID,
+        participants,
       };
       const res = await callAPI('get', getMessage(), {}, params);
+      console.log(res);
       if (res.status) {
         return new Promise(resolve => {
           resolve({
             status: true,
             listMessage: res.listMessage,
             currentPage: res.current_page,
+            total: res.total,
           });
         });
       } else {

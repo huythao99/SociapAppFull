@@ -1,8 +1,9 @@
-const { default: mongoose } = require("mongoose");
 const { ITEMS_IN_PAGE } = require("../constants");
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const { sortID } = require("../ultilities/Ultilities");
+
+const mongoose = require("mongoose");
 
 const createMessage = async (message) => {
   const newMessage = new Message({
@@ -61,4 +62,73 @@ const updateConversation = async (roomID) => {
   return response;
 };
 
-module.exports = { createMessage, updateConversation };
+const getConversation = async (req, res) => {
+  try {
+    const currentPage = Number(req.query.page || 1);
+    const data = await Conversation.find({
+      $or: [{ userCreator: req.user._id }, { participants: req.user._id }],
+    })
+      .populate({
+        path: "userCreator",
+        select: "name _id avatar",
+      })
+      .populate({
+        path: "participants",
+        select: "name _id avatar",
+      })
+      .sort({ timeSend: -1 })
+      .skip((currentPage - 1) * ITEMS_IN_PAGE)
+      .limit(ITEMS_IN_PAGE);
+    const total = await Conversation.countDocuments({
+      $or: [{ userCreator: req.user._id }, { participants: req.user._id }],
+    });
+    return res.status(200).json({
+      status: 1,
+      message: "get conversation success",
+      listConversation: data,
+      current_page: currentPage,
+      total: total,
+    });
+  } catch (error) {
+    return res.status(200).json({ message: error.message, status: 0 });
+  }
+};
+
+const getAllMessage = async (req, res) => {
+  try {
+    const currentPage = Number(req.query.page || 1);
+    const arrayParticipants = JSON.parse(req.query.participants).map((item) =>
+      mongoose.Types.ObjectId(item)
+    );
+    const listMessage = await Message.find({
+      participants: { $all: [...arrayParticipants] },
+    })
+      .populate({
+        path: "participants",
+        select: "name _id avatar",
+      })
+      .populate({
+        path: "userSend",
+        select: "name _id avatar",
+      });
+    const total = await Message.countDocuments({
+      participants: { $all: [...arrayParticipants] },
+    });
+    return res.status(200).json({
+      status: 1,
+      message: "get list messenger success",
+      listMessage: listMessage,
+      current_page: currentPage,
+      total: total,
+    });
+  } catch (error) {
+    return res.status(200).json({ status: 0, message: error.message });
+  }
+};
+
+module.exports = {
+  createMessage,
+  updateConversation,
+  getConversation,
+  getAllMessage,
+};

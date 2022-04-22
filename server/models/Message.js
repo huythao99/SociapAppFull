@@ -18,6 +18,7 @@ const Message = new mongoose.Schema({
     ref: "Conversation",
   },
   userSend: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 module.exports = mongoose.model("Message", Message);
