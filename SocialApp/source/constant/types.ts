@@ -21,6 +21,8 @@ export type RootStackParamList = {
     conversationID?: string;
     userCreatorID?: string;
     participantID?: Array<string>;
+    friendAvatar?: string;
+    friendName?: string;
   };
   DetailPostScreen: {
     idPost: string;
@@ -114,6 +116,7 @@ export interface ConversationItem {
     name: string;
     avatar: string;
   };
+  userSend: string;
   participants: Array<{
     _id: string;
     name: string;
@@ -133,12 +136,17 @@ export interface MessageItem {
   timeCreate: number;
   content: string;
   urlImage: string;
-  senderID: string;
-  receiverID: {
+  conversation: string;
+  userSend: {
     _id: string;
     name: string;
-    avatar: string;
+    avatar: string | null;
   };
+  participants: Array<{
+    _id: string;
+    name: string;
+    avatar: string | null;
+  }>;
   _id: string;
 }
 
@@ -147,4 +155,5 @@ export interface Message {
   listMessage?: Array<MessageItem>;
   currentPage?: number;
   total?: number;
+  conversationID?: string;
 }

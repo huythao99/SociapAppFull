@@ -1,49 +1,46 @@
 const { ITEMS_IN_PAGE } = require("../constants");
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
-const { sortID } = require("../ultilities/Ultilities");
 
 const mongoose = require("mongoose");
 
 const createMessage = async (message) => {
-  const newMessage = new Message({
-    content: message.content,
-    urlImage: message.urlImage,
-    senderID: mongoose.Types.ObjectId(message.senderID),
-    receiverID: mongoose.Types.ObjectId(message.receiverID._id),
-    timeCreate: Date.now(),
-  });
-  const dataToSave = await newMessage.save();
-  const conversation = await Conversation.findById(
-    sortID(message.senderID, message.receiverID._id)
-  );
-  const newListMessage = conversation ? [...conversation.message] : [];
-  newListMessage.push(dataToSave._doc._id);
-  if (conversation) {
+  if (message.conversation) {
+    const newMessage = new Message({
+      content: message.content,
+      urlImage: message.urlImage,
+      userSend: message.userSend,
+      participants: message.participants,
+      conversation: message.conversation,
+    });
+    const dataToSave = await newMessage.save();
     const option = { new: true };
     await Conversation.findOneAndUpdate(
-      { _id: sortID(message.senderID, message.receiverID._id) },
+      { _id: message.conversation },
       {
-        message: newListMessage,
-        senderID: mongoose.Types.ObjectId(message.senderID),
-        content: message.content === "" ? "Đã gửi một ảnh" : message.content,
-        receiverID: mongoose.Types.ObjectId(message.receiverID._id),
+        userSend: mongoose.Types.ObjectId(message.userSend),
+        lastMessage:
+          message.content === "" ? "Đã gửi một ảnh" : message.content,
         timeSend: dataToSave._doc.timeCreate,
-        urlImage: message.urlImage,
       },
       option
     );
   } else {
     const newConversation = new Conversation({
-      _id: sortID(message.senderID, message.receiverID._id),
-      content: message.content === "" ? "Đã gửi một ảnh" : message.content,
-      receiverID: mongoose.Types.ObjectId(message.receiverID._id),
-      senderID: mongoose.Types.ObjectId(message.senderID),
-      urlImage: message.urlImage,
-      message: newListMessage,
-      timeSend: dataToSave._doc.timeCreate,
+      lastMessage: message.content === "" ? "Đã gửi một ảnh" : message.content,
+      userSend: mongoose.Types.ObjectId(message.userSend),
+      userCreator: mongoose.Types.ObjectId(message.userSend),
+      participants: message.participants,
     });
-    await newConversation.save();
+    const dataSave = await newConversation.save();
+    const newMessage = new Message({
+      content: message.content,
+      urlImage: message.urlImage,
+      userSend: message.userSend,
+      participants: message.participants,
+      conversation: dataSave._doc._id,
+    });
+    await newMessage.save();
   }
 };
 
@@ -97,32 +94,70 @@ const getConversation = async (req, res) => {
 const getAllMessage = async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
-    const arrayParticipants = JSON.parse(req.query.participants).map((item) =>
+    const arrayParticipants = req.query.participants.map((item) =>
       mongoose.Types.ObjectId(item)
     );
-    const listMessage = await Message.find({
-      participants: { $all: [...arrayParticipants] },
-    })
-      .populate({
-        path: "participants",
-        select: "name _id avatar",
+    // navigate tu man danh sach cuoc hoi thoai
+    if (req.query.conversationID) {
+      const listMessage = await Message.find({
+        conversation: req.query.conversationID,
       })
-      .populate({
-        path: "userSend",
-        select: "name _id avatar",
+        .populate({
+          path: "participants",
+          select: "name _id avatar",
+        })
+        .populate({
+          path: "userSend",
+          select: "name _id avatar",
+        });
+      const total = await Message.countDocuments({
+        conversation: req.query.conversationID,
       });
-    const total = await Message.countDocuments({
-      participants: { $all: [...arrayParticipants] },
-    });
-    return res.status(200).json({
-      status: 1,
-      message: "get list messenger success",
-      listMessage: listMessage,
-      current_page: currentPage,
-      total: total,
-    });
+      return res.status(200).json({
+        status: 1,
+        message: "get list messenger success",
+        listMessage: listMessage,
+        current_page: currentPage,
+        total: total,
+        conversationID: req.query.conversationID,
+      });
+    } else {
+      // chat don, navigate tu trang ca nhan cua user
+      const listMessage = await Message.find({
+        $and: [
+          {
+            participants: { $all: [...arrayParticipants] },
+          },
+          {
+            participants: { $size: 2 },
+          },
+        ],
+      })
+        .populate({
+          path: "participants",
+          select: "name _id avatar",
+        })
+        .populate({
+          path: "userSend",
+          select: "name _id avatar",
+        });
+      const total = await Message.countDocuments({
+        $and: [
+          { participants: { $all: [...arrayParticipants] } },
+          { participants: { $size: 2 } },
+        ],
+      });
+      return res.status(200).json({
+        status: 1,
+        message: "get list messenger success",
+        listMessage: listMessage,
+        current_page: currentPage,
+        total: total,
+        conversationID: listMessage[0] ? listMessage[0].conversation : null,
+      });
+    }
   } catch (error) {
-    return res.status(200).json({ status: 0, message: error.message });
+    return res.status(400).json({ status: 0, message: error.message });
   }
 };
 

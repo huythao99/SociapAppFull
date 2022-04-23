@@ -9,6 +9,7 @@ export default async function callAPI(
   params: any,
   contentType?: string,
 ) {
+  console.log('url', url);
   const value = await AsyncStorage.getItem('user');
   const jsonValue = value != null ? JSON.parse(value) : null;
   const headers = {
@@ -29,6 +30,8 @@ export default async function callAPI(
   if (res.status === 200 && res.data.status === 1) {
     return res.data;
   } else {
+    console.log('error');
+    console.log(url);
     console.log(res);
   }
 }

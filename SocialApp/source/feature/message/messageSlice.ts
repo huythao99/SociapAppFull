@@ -15,17 +15,20 @@ export const requestGetMessage = createAsyncThunk(
   async ({
     page,
     participants,
+    conversationID,
   }: {
     page: Number;
-    participants: Array<string>;
+    participants: Array<string> | null;
+    conversationID: string | null;
   }): Promise<Partial<Message>> => {
     try {
       const params = {
         page,
         participants,
+        conversationID,
       };
       const res = await callAPI('get', getMessage(), {}, params);
-      console.log(res);
+      console.log(res.listMessage);
       if (res.status) {
         return new Promise(resolve => {
           resolve({
@@ -33,6 +36,7 @@ export const requestGetMessage = createAsyncThunk(
             listMessage: res.listMessage,
             currentPage: res.current_page,
             total: res.total,
+            conversationID: res.conversationID,
           });
         });
       } else {

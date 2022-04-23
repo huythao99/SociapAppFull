@@ -1,3 +1,4 @@
+const { boolean } = require("joi");
 const mongoose = require("mongoose");
 
 const Conversation = new mongoose.Schema({
@@ -12,12 +13,20 @@ const Conversation = new mongoose.Schema({
     },
   ],
   lastMessage: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Message",
+    type: String,
+    required: true,
   },
   timeSend: {
     type: Date,
     default: Date.now,
+  },
+  userSend: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  isSeen: {
+    type: Boolean,
+    default: false,
   },
 });
 

@@ -412,6 +412,8 @@ export default function ProfileScreen(props: ProfileProps) {
     } else {
       navigation.navigate('ChatScreen', {
         participantID: [userId, props.route.params.uid],
+        friendName: userName,
+        friendAvatar: userAvatar,
       });
     }
   };

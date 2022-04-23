@@ -33,6 +33,8 @@ interface ChatProps {
       conversationID?: string;
       userCreatorID?: string;
       participantID?: Array<string>;
+      friendAvatar: string;
+      friendName: string;
     };
   };
 }
@@ -125,9 +127,6 @@ const ImageChoose = styled.Image`
 export default function ChatScreen(props: ChatProps) {
   const navigation = useNavigation<ChatScreenProps>();
   const userID = useAppSelector(state => state.auth.id);
-  const userAvatar = useAppSelector(state => state.auth.avatar);
-  const userName = useAppSelector(state => state.auth.name);
-  const userEmail = useAppSelector(state => state.auth.email);
   const dispatch = useAppDispatch();
   const {control, handleSubmit, resetField} = useForm<FormValues>();
   const listMessage = useAppSelector(state => state.message.listMessage);
@@ -137,6 +136,8 @@ export default function ChatScreen(props: ChatProps) {
   const [total, setTotal] = React.useState(1);
   const [friendName, setFriendName] = React.useState(null);
   const [friendAvatar, setFriendAvatar] = React.useState(null);
+  const [conversationID, setConversationID] = React.useState(null);
+  const [listParticipants, setListParticipants] = React.useState([]);
 
   const refSocket = React.useRef<Socket>();
 
@@ -184,35 +185,22 @@ export default function ChatScreen(props: ChatProps) {
       return;
     }
     resetField('content');
-    // refSocket.current.emit(
-    //   'sendMessage',
-    //   sortID(userID, props.route.params.participantID),
-    //   {
-    //     content: data.content,
-    //     timeCreate: Date.now,
-    //     urlImage: null,
-    //     senderID: userID,
-    //   },
-    // );
-    // dispatch(
-    //   updateListMessage({
-    //     content: data.content,
-    //     timeCreate: Date.now(),
-    //     urlImage: null,
-    //     senderID: userID,
-    //     receiverID: {
-    //       _id: props.route.params.friendID,
-    //       name: props.route.params.friendName,
-    //       avatar: props.route.params.friendAvatar,
-    //     },
-    //   }),
-    // );
+    refSocket.current.emit('sendMessage', conversationID, {
+      content: data.content,
+      urlImage: null,
+      userSend: userID,
+      conversation: conversationID,
+      participants:
+        listParticipants.length === 0
+          ? [...props.route.params.participantID]
+          : listParticipants,
+    });
   };
 
   const renderItem = ({item, index}) => {
     const isLastMessage =
-      item.senderID === listMessage[index - 1]?.senderID &&
-      item.senderID !== listMessage[index + 1]?.senderID;
+      item.userSend?._id === listMessage[index - 1]?.userSend?._id &&
+      item.userSend?._id !== listMessage[index + 1]?.userSend?._id;
     return (
       <MessageComponent
         item={item}
@@ -224,40 +212,70 @@ export default function ChatScreen(props: ChatProps) {
   };
 
   const getData = async (page: number) => {
-    console.log(props.route.params.participantID);
-    const res = await dispatch(
-      requestGetMessage({
-        page: page,
-        participants: props.route.params.participantID,
-      }),
-    ).unwrap();
-    if (res.status) {
-      if (page === 1) {
-        setTotal(res.total);
+    if (props.route.params.conversationID) {
+      const res = await dispatch(
+        requestGetMessage({
+          page: page,
+          conversationID: props.route.params.conversationID,
+          participants: null,
+        }),
+      ).unwrap();
+      if (res.status) {
+        if (page === 1) {
+          setTotal(res.total);
+          setConversationID(res.conversationID);
+          const newListParticipants = res.listMessage[0].participants.filter(
+            item => item._id !== userID,
+          );
+          setFriendAvatar(newListParticipants[0].avatar);
+          setListParticipants(res.listMessage[0].participants);
+          setFriendName(newListParticipants[0].name);
+        }
+        setCurrentPage(res.currentPage);
       }
-      setCurrentPage(res.currentPage);
+    } else {
+      const res = await dispatch(
+        requestGetMessage({
+          page: page,
+          participants: props.route.params.participantID,
+          conversationID: null,
+        }),
+      ).unwrap();
+      if (res.status) {
+        if (page === 1) {
+          setTotal(res.total);
+          setConversationID(res.conversationID);
+          if (res.listMessage[0]) {
+            setListParticipants(res.listMessage[0].participants);
+          }
+        }
+        setCurrentPage(res.currentPage);
+      }
+    }
+  };
+
+  const onLoadMore = () => {
+    if (listMessage.length < total) {
+      getData(currentPage + 1);
     }
   };
 
   React.useEffect(() => {
     getData(1);
-    return () => {
-      console.log('run');
-    };
   }, []);
 
   React.useEffect(() => {
-    socketChat.emit('join room', props.route.params.conversationID);
+    socketChat.emit('join room', conversationID);
     socketChat.on('receiverMessage', message => {
-      dispatch(updateListMessage({...message}));
+      console.log(message);
+      // dispatch(updateListMessage({...message}));
     });
     refSocket.current = socketChat;
     return () => {
-      socketChat.emit('leave room', props.route.params.conversationID);
+      // socketChat.emit('leave room', conversationID);
       socketChat.off('receiverMessage');
     };
   }, []);
-
   return (
     <Container>
       <HeaderContainer>
@@ -269,8 +287,17 @@ export default function ChatScreen(props: ChatProps) {
           />
         </BackButton>
         <UserButton>
-          <UserHeaderImage source={{uri: friendAvatar || DEFAULT_AVATAR}} />
-          <UserNameText>{friendName}</UserNameText>
+          <UserHeaderImage
+            source={{
+              uri:
+                friendAvatar ||
+                props.route.params.friendAvatar ||
+                DEFAULT_AVATAR,
+            }}
+          />
+          <UserNameText>
+            {friendName || props.route.params.friendName}
+          </UserNameText>
         </UserButton>
         <ToolButton>
           <FontAwesome5
@@ -302,6 +329,8 @@ export default function ChatScreen(props: ChatProps) {
           return item?._id;
         }}
         inverted={true}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={0.5}
       />
       <BottomContainer>
         <ToolButton onPress={onOpenCamera}>

@@ -76,11 +76,11 @@ function MessageComponent(props: MessageItemProps) {
       style={{
         flexDirection: 'row',
         justifyContent:
-          props.item.senderID !== props.userID ? 'flex-start' : 'flex-end',
+          props.item.userSend._id !== props.userID ? 'flex-start' : 'flex-end',
         marginHorizontal: (WIDTH / 100) * 4,
         marginVertical: HEIGHT / 100,
       }}>
-      {props.item.senderID !== props.userID ? (
+      {props.item.userSend._id !== props.userID ? (
         <>
           <UserImage
             source={{uri: props.friend.friendAvatar || DEFAULT_AVATAR}}
