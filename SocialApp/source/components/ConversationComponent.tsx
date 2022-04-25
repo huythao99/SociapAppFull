@@ -60,16 +60,16 @@ function ConversationComponent(props: ConversationComponentProps) {
         <AvatarImage
           source={{
             uri:
-              props.uid === props.item.userCreator._id
-                ? props.item.userCreator.avatar || DEFAULT_AVATAR
+              props.uid === props.item.participants[0]._id
+                ? props.item.participants[1].avatar || DEFAULT_AVATAR
                 : props.item.participants[0].avatar || DEFAULT_AVATAR,
           }}
         />
         <View>
           <UserNameText>
-            {props.uid === props.item.userCreator._id
+            {props.uid === props.item.participants[0].avatar
               ? props.item.participants[0].name
-              : props.item.userCreator.name}
+              : props.item.participants[1].name}
           </UserNameText>
           <ContentMessageText>{props.item.lastMessage}</ContentMessageText>
         </View>

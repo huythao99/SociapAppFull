@@ -1,8 +1,13 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {showAlert} from '../../ultilities/Ultilities';
-import {Conversation, Message, MessageItem} from '../../constant/types';
+import {
+  Conversation,
+  Message,
+  MessageItem,
+  MessageParams,
+} from '../../constant/types';
 import callAPI from '../../apis/api';
-import {getConversationUrl, getMessage} from '../../apis/url';
+import {getConversationUrl, getMessage, sendMessage} from '../../apis/url';
 import {showMessage} from 'react-native-flash-message';
 
 interface MessageState {
@@ -28,7 +33,6 @@ export const requestGetMessage = createAsyncThunk(
         conversationID,
       };
       const res = await callAPI('get', getMessage(), {}, params);
-      console.log(res.listMessage);
       if (res.status) {
         return new Promise(resolve => {
           resolve({
@@ -64,13 +68,47 @@ const initialState: MessageState = {
   currentPage: 1,
 };
 
+export const requestSendMessage = createAsyncThunk(
+  'message/requestSendMessage',
+  async ({message}: {message: MessageParams}): Promise<Partial<Message>> => {
+    try {
+      const data = {
+        message,
+      };
+      const response = await callAPI('post', sendMessage(), data, {});
+      if (response.status) {
+        return {
+          status: true,
+          messageResponse: response.messageResponse,
+          message: response.message,
+        };
+      } else {
+        showAlert('Đã có lỗi xảy ra', 'danger');
+        return {
+          status: false,
+          message: 'Đã có lỗi xảy ra',
+        };
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return {
+        status: false,
+        message: error.message,
+      };
+    }
+  },
+);
+
 export const messageSlice = createSlice({
   name: 'message',
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     updateListMessage: (state, action) => {
-      state.listMessage = [action.payload, ...state.listMessage];
+      state.listMessage = [action.payload.message, ...state.listMessage];
+    },
+    resetListMessage: state => {
+      state.listMessage = [];
     },
   },
   extraReducers: builder => {
@@ -92,6 +130,6 @@ export const messageSlice = createSlice({
   },
 });
 
-export const {updateListMessage} = messageSlice.actions;
+export const {updateListMessage, resetListMessage} = messageSlice.actions;
 
 export default messageSlice.reducer;

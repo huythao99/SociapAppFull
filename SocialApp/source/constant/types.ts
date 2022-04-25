@@ -150,10 +150,24 @@ export interface MessageItem {
   _id: string;
 }
 
+export interface MessageParams {
+  content: string;
+  urlImage: string | null;
+  userSend: string;
+  conversation: string | null;
+  participants: Array<{
+    _id: string;
+    name: string;
+    avatar: string | null;
+  }>;
+}
+
 export interface Message {
   status?: boolean;
   listMessage?: Array<MessageItem>;
   currentPage?: number;
   total?: number;
   conversationID?: string;
+  messageResponse?: MessageItem;
+  message?: string;
 }

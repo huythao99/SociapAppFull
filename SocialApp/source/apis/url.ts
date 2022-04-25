@@ -62,3 +62,7 @@ export const getConversationUrl = () => {
 export const getMessage = () => {
   return '/api/chat/getAllMessage';
 };
+
+export const sendMessage = () => {
+  return '/api/chat/sendMessage';
+};

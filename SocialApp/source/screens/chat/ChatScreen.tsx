@@ -19,13 +19,14 @@ import {Message, RootStackParamList} from '../../constant/types';
 import MessageComponent from '../../components/MessageComponent';
 import {
   requestGetMessage,
+  requestSendMessage,
+  resetListMessage,
   updateListMessage,
 } from '../../feature/message/messageSlice';
 import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
-import {sortID} from '../../ultilities/Ultilities';
 import {io, Socket} from 'socket.io-client';
 import {socketChat} from '../../socket/SocketClient';
-import Animated, {SequencedTransition} from 'react-native-reanimated';
+import Animated, {Layout, SequencedTransition} from 'react-native-reanimated';
 
 interface ChatProps {
   route: {
@@ -185,7 +186,7 @@ export default function ChatScreen(props: ChatProps) {
       return;
     }
     resetField('content');
-    refSocket.current.emit('sendMessage', conversationID, {
+    const message = {
       content: data.content,
       urlImage: null,
       userSend: userID,
@@ -194,7 +195,17 @@ export default function ChatScreen(props: ChatProps) {
         listParticipants.length === 0
           ? [...props.route.params.participantID]
           : listParticipants,
-    });
+    };
+    const res = await dispatch(requestSendMessage({message})).unwrap();
+    if (res.status) {
+      dispatch(updateListMessage({message: res.messageResponse}));
+      refSocket.current.emit(
+        'sendMessage',
+        conversationID,
+        res.messageResponse,
+      );
+      refSocket.current.emit('updateConversation', res.conversationID);
+    }
   };
 
   const renderItem = ({item, index}) => {
@@ -267,15 +278,19 @@ export default function ChatScreen(props: ChatProps) {
   React.useEffect(() => {
     socketChat.emit('join room', conversationID);
     socketChat.on('receiverMessage', message => {
-      console.log(message);
-      // dispatch(updateListMessage({...message}));
+      dispatch(updateListMessage({message}));
     });
     refSocket.current = socketChat;
     return () => {
-      // socketChat.emit('leave room', conversationID);
+      socketChat.emit(
+        'leave room',
+        conversationID || props.route.params.conversationID,
+      );
       socketChat.off('receiverMessage');
+      dispatch(resetListMessage());
     };
   }, []);
+
   return (
     <Container>
       <HeaderContainer>
@@ -325,10 +340,9 @@ export default function ChatScreen(props: ChatProps) {
         data={listMessage}
         renderItem={renderItem}
         contentContainerStyle={{flexGrow: 1}}
-        keyExtractor={(item: any) => {
-          return item?._id;
-        }}
+        keyExtractor={(item: any) => item._id}
         inverted={true}
+        layout={Layout.springify()}
         onEndReached={onLoadMore}
         onEndReachedThreshold={0.5}
       />

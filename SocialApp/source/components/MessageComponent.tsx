@@ -5,6 +5,9 @@ import {HEIGHT, normalize, WIDTH} from '../constant/dimensions';
 import {BLACK, BLUE_GRAY, LIGHT_BLUE, WHITE} from '../constant/color';
 import {DEFAULT_AVATAR} from '../constant/constants';
 import Animated, {
+  FadeInDown,
+  FadeInUp,
+  Layout,
   SlideInDown,
   SlideInRight,
   SlideInUp,
@@ -72,7 +75,8 @@ const MessageUserText = styled(MessageFriendText)`
 function MessageComponent(props: MessageItemProps) {
   return (
     <Animated.View
-      entering={SlideInRight}
+      entering={FadeInDown}
+      layout={Layout.springify()}
       style={{
         flexDirection: 'row',
         justifyContent:

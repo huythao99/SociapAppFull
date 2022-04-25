@@ -124,9 +124,10 @@ export default function MessageScreen() {
 
   React.useEffect(() => {
     socketChat.on('updateConversation', data => {
-      if (data._id.indexOf(userId) !== -1) {
-        dispatch(updateConversation({conversation: {...data}}));
-      }
+      console.log(data);
+      // if (data._id.indexOf(userId) !== -1) {
+      //   dispatch(updateConversation({conversation: {...data}}));
+      // }
     });
     return () => {
       socketChat.off('updateConversation');
