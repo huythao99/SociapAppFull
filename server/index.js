@@ -13,7 +13,10 @@ const { Server } = require("socket.io");
 
 var cors = require("cors");
 const chatRoute = require("./routes/chatRoute");
-const { createMessage, updateConversation } = require("./controller/chat");
+const {
+  updateConversation,
+  getConversationByID,
+} = require("./controller/chat");
 const { getPostByID, getCommentByID } = require("./controller/post");
 const { getAllFCMTokenUser } = require("./controller/user");
 const { sendNotifiOfNewPost } = require("./controller/notification");
@@ -78,12 +81,11 @@ socketChat.on("connection", (socket) => {
     socket.join(roomID);
   });
   socket.on("sendMessage", async (roomID, message) => {
-    createMessage(message);
     socket.to(roomID).emit("receiverMessage", message);
+    const data = await getConversationByID(roomID);
+    socketChat.emit("updateConversation", data);
   });
   socket.on("leave room", async (roomID) => {
-    const data = await updateConversation(roomID);
-    socket.emit("updateConversation", data);
     socket.leave(roomID);
   });
 });

@@ -124,13 +124,15 @@ export default function MessageScreen() {
 
   React.useEffect(() => {
     socketChat.on('updateConversation', data => {
-      console.log(data);
-      // if (data._id.indexOf(userId) !== -1) {
-      //   dispatch(updateConversation({conversation: {...data}}));
-      // }
+      if (
+        data.participants.findIndex(
+          (item: {_id: string}) => item._id === userId,
+        ) !== -1
+      )
+        dispatch(updateConversation({conversation: {...data}}));
     });
     return () => {
-      socketChat.off('updateConversation');
+      // socketChat.off('updateConversation');
     };
   }, []);
 

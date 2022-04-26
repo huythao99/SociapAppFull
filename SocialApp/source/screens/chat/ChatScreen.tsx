@@ -273,14 +273,6 @@ export default function ChatScreen(props: ChatProps) {
 
   React.useEffect(() => {
     getData(1);
-  }, []);
-
-  React.useEffect(() => {
-    socketChat.emit('join room', conversationID);
-    socketChat.on('receiverMessage', message => {
-      dispatch(updateListMessage({message}));
-    });
-    refSocket.current = socketChat;
     return () => {
       socketChat.emit(
         'leave room',
@@ -290,6 +282,16 @@ export default function ChatScreen(props: ChatProps) {
       dispatch(resetListMessage());
     };
   }, []);
+
+  React.useEffect(() => {
+    if (conversationID) {
+      socketChat.emit('join room', conversationID);
+      socketChat.on('receiverMessage', message => {
+        dispatch(updateListMessage({message}));
+      });
+      refSocket.current = socketChat;
+    }
+  }, [conversationID]);
 
   return (
     <Container>

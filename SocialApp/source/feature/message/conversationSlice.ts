@@ -17,10 +17,13 @@ export const requestGetConversation = createAsyncThunk(
         page,
       };
       const res = await callAPI('get', getConversationUrl(), {}, params);
+      const newListConversation = res.listConversation.filter(
+        (item: ConversationItem) => item.lastMessage !== '',
+      );
       return new Promise(resolve => {
         resolve({
           status: true,
-          listConversation: res.listConversation,
+          listConversation: newListConversation,
           currentPage: res.current_page,
           total: res.total,
         });
@@ -48,21 +51,16 @@ export const conversationSlice = createSlice({
   initialState,
   reducers: {
     updateConversation: (state, action) => {
-      const listConversationCoppy = state.listConversation;
       const indexOfNewConversation = state.listConversation.findIndex(
         item => item._id === action.payload.conversation._id,
       );
-      if (indexOfNewConversation === -1) {
-        listConversationCoppy.push(action.payload);
-      } else {
-        listConversationCoppy.splice(
-          indexOfNewConversation,
-          1,
-          action.payload.conversation,
-        );
+      if (indexOfNewConversation !== -1) {
+        state.listConversation.splice(indexOfNewConversation, 1);
       }
-      listConversationCoppy.sort((a, b) => a.timeSend - b.timeSend);
-      state.listConversation = listConversationCoppy;
+      state.listConversation = [
+        action.payload.conversation,
+        ...state.listConversation,
+      ];
     },
   },
   extraReducers: builder => {
