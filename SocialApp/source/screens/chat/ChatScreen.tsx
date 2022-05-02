@@ -277,6 +277,7 @@ export default function ChatScreen(props: ChatProps) {
       socketChat.emit(
         'leave room',
         conversationID || props.route.params.conversationID,
+        userID,
       );
       socketChat.off('receiverMessage');
       dispatch(resetListMessage());
@@ -285,7 +286,7 @@ export default function ChatScreen(props: ChatProps) {
 
   React.useEffect(() => {
     if (conversationID) {
-      socketChat.emit('join room', conversationID);
+      socketChat.emit('join room', conversationID, userID);
       socketChat.on('receiverMessage', message => {
         dispatch(updateListMessage({message}));
       });

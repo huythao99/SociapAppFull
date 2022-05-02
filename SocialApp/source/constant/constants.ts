@@ -1,10 +1,10 @@
 import {BLUE_700, DEEP_ORANGE_500, PURPLE_500, RED_500} from './color';
 
 // export const BASE_URL = 'http://192.168.1.58:3000/';
-// export const BASE_URL = 'http://192.168.0.101:3000/';
+export const BASE_URL = 'http://192.168.0.101:3000/';
 
 // export const BASE_URL = 'https://my-social-app-server.herokuapp.com/';
-export const BASE_URL = 'http://192.168.207.80:3000/';
+// export const BASE_URL = 'http://192.168.207.80:3000/';
 export const ARRAY_ICON_TAB = [
   'home',
   'user-friends',

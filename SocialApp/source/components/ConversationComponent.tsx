@@ -13,6 +13,10 @@ interface ConversationComponentProps {
   onClickItem: (conversationID: string) => void;
 }
 
+type ContentTextProps = {
+  isSeen: boolean;
+};
+
 const Container = styled.TouchableOpacity`
   flex-direction: row;
   padding-vertical: ${(HEIGHT / 100) * 2}px;
@@ -45,7 +49,7 @@ const UserNameText = styled.Text`
 
 const ContentMessageText = styled.Text`
   font-size: ${normalize(12)}px;
-  color: ${GREY_700};
+  color: ${(props: ContentTextProps) => (props.isSeen ? GREY_700 : BLACK)};
   margin-horizontal: ${(WIDTH / 100) * 4}px;
 `;
 
@@ -71,7 +75,12 @@ function ConversationComponent(props: ConversationComponentProps) {
               ? props.item.participants[0].name
               : props.item.participants[1].name}
           </UserNameText>
-          <ContentMessageText>{props.item.lastMessage}</ContentMessageText>
+          <ContentMessageText
+            isSeen={
+              props.uid === props.item.userSend ? true : props.item.isSeen
+            }>
+            {props.item.lastMessage}
+          </ContentMessageText>
         </View>
       </LeftContainer>
       <ContentTimeText>

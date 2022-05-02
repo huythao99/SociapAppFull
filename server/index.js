@@ -16,6 +16,7 @@ const chatRoute = require("./routes/chatRoute");
 const {
   updateConversation,
   getConversationByID,
+  updateStatusConversation,
 } = require("./controller/chat");
 const { getPostByID, getCommentByID } = require("./controller/post");
 const { getAllFCMTokenUser } = require("./controller/user");
@@ -63,30 +64,36 @@ const socketChat = io.of("/chat");
 io.on("connection", (socket) => {
   socket.on("createPost", async (post) => {
     const response = await getPostByID(post._id);
-    socket.emit("updatePost", response);
+    io.emit("updatePost", response);
     // const listFCMToken = await getAllFCMTokenUser(post.creater);
     // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });
 
   socket.on("createComment", async (comment) => {
     const response = await getCommentByID(comment._id);
-    socket.emit("updateComment", response);
+    io.emit("updateComment", response);
     // const listFCMToken = await getAllFCMTokenUser(post.creater);
     // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });
 });
 
 socketChat.on("connection", (socket) => {
-  socket.on("join room", (roomID) => {
+  socket.on("join room", async (roomID, userID) => {
     socket.join(roomID);
+    await updateStatusConversation(roomID, userID);
+    socketChat.emit("updateStatusConversation", roomID);
   });
+
   socket.on("sendMessage", async (roomID, message) => {
     socket.to(roomID).emit("receiverMessage", message);
     const data = await getConversationByID(roomID);
     socketChat.emit("updateConversation", data);
   });
-  socket.on("leave room", async (roomID) => {
+
+  socket.on("leave room", async (roomID, userID) => {
     socket.leave(roomID);
+    await updateStatusConversation(roomID, userID);
+    socketChat.emit("updateStatusConversation", roomID);
   });
 });
 

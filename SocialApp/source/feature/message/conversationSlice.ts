@@ -10,7 +10,7 @@ interface ConversationState {
 }
 
 export const requestGetConversation = createAsyncThunk(
-  'get/requestGetConversation',
+  'conversation/requestGetConversation',
   async ({page}: {page: Number}): Promise<Partial<Conversation>> => {
     try {
       const params = {
@@ -62,6 +62,25 @@ export const conversationSlice = createSlice({
         ...state.listConversation,
       ];
     },
+
+    updateStatusConversation: (state, action) => {
+      const indexOfConversation = state.listConversation.findIndex(
+        item => item._id === action.payload.conversationID,
+      );
+      if (indexOfConversation !== -1) {
+        if (
+          state.listConversation[indexOfConversation].userSend !==
+          action.payload.userID
+        ) {
+          const newConversation = state.listConversation;
+          newConversation[indexOfConversation] = {
+            ...newConversation[indexOfConversation],
+            isSeen: true,
+          };
+          state.listConversation = newConversation;
+        }
+      }
+    },
   },
   extraReducers: builder => {
     builder.addCase(requestGetConversation.pending, state => {});
@@ -82,6 +101,7 @@ export const conversationSlice = createSlice({
   },
 });
 
-export const {updateConversation} = conversationSlice.actions;
+export const {updateConversation, updateStatusConversation} =
+  conversationSlice.actions;
 
 export default conversationSlice.reducer;

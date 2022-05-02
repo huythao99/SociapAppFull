@@ -11,6 +11,7 @@ import ConversationComponent from '../../components/ConversationComponent';
 import {
   requestGetConversation,
   updateConversation,
+  updateStatusConversation,
 } from '../../feature/message/conversationSlice';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../constant/types';
@@ -128,11 +129,16 @@ export default function MessageScreen() {
         data.participants.findIndex(
           (item: {_id: string}) => item._id === userId,
         ) !== -1
-      )
+      ) {
         dispatch(updateConversation({conversation: {...data}}));
+      }
+    });
+    socketChat.on('updateStatusConversation', conversationID => {
+      dispatch(updateStatusConversation({conversationID, userID: userId}));
     });
     return () => {
-      // socketChat.off('updateConversation');
+      socketChat.off('updateStatusConversation');
+      socketChat.off('updateConversation');
     };
   }, []);
 

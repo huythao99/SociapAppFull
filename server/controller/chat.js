@@ -19,6 +19,26 @@ const getConversationByID = async (conversationID) => {
   return conversation;
 };
 
+const updateStatusConversation = async (conversationID, userID) => {
+  const option = { new: true };
+  await Conversation.findOneAndUpdate(
+    {
+      $and: [
+        {
+          _id: conversationID,
+        },
+        {
+          userSend: {
+            $ne: userID,
+          },
+        },
+      ],
+    },
+    { isSeen: true },
+    option
+  );
+};
+
 const createMessage = async (req, res) => {
   try {
     const message = req.body.message;
@@ -223,4 +243,5 @@ module.exports = {
   getConversation,
   getAllMessage,
   getConversationByID,
+  updateStatusConversation,
 };

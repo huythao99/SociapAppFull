@@ -123,6 +123,7 @@ export interface ConversationItem {
     avatar: string;
   }>;
   timeSend: number;
+  isSeen: boolean;
 }
 
 export interface Conversation {
