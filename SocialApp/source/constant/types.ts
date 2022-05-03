@@ -1,5 +1,5 @@
 export interface User {
-  status?: Boolean;
+  status?: boolean;
   id?: string;
   email?: string;
   password?: string;
@@ -7,6 +7,8 @@ export interface User {
   avatar?: string;
   coverImage?: string;
   token?: string;
+  listFollow: Array<string>;
+  listFollower: Array<string>;
 }
 
 export type RootStackParamList = {
@@ -106,6 +108,8 @@ export interface DataUser {
   name: string;
   avatar: string | undefined | null;
   coverImage: string | undefined | null;
+  listFollow: Array<string>;
+  listFollower: Array<string>;
 }
 
 export interface ConversationItem {
@@ -131,6 +135,7 @@ export interface Conversation {
   listConversation?: Array<ConversationItem>;
   currentPage?: number;
   total?: number;
+  totalNotRead: number;
 }
 
 export interface MessageItem {

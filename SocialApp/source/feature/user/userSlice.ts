@@ -66,10 +66,12 @@ export const requestGetDataUser = createAsyncThunk(
           status: true,
           listPost: res.dataUser.listPost,
           currentPage: res.current_page,
-          totalPost: res.dataUser.totalPost,
+          totalPost: res.totalPost,
           name: res.dataUser.name,
           avatar: res.dataUser.avatar,
           coverImage: res.dataUser.coverImage,
+          listFollow: res.dataUser.listFollow,
+          listFollower: res.dataUser.listFollower,
         });
       });
     } catch (error) {

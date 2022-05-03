@@ -137,12 +137,23 @@ const getConversation = async (req, res) => {
     const total = await Conversation.countDocuments({
       $or: [{ userCreator: req.user._id }, { participants: req.user._id }],
     });
+    const totalNotRead = await Conversation.countDocuments({
+      $and: [
+        {
+          $or: [{ userCreator: req.user._id }, { participants: req.user._id }],
+        },
+        {
+          isSeen: false,
+        },
+      ],
+    });
     return res.status(200).json({
       status: 1,
       message: "get conversation success",
       listConversation: data,
       current_page: currentPage,
       total: total,
+      totalNotRead: totalNotRead,
     });
   } catch (error) {
     return res.status(200).json({ message: error.message, status: 0 });

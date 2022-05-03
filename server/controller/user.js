@@ -65,6 +65,8 @@ const signIn = async (req, res) => {
             ...req.body,
             avatar: response.avatar,
             coverImage: response.coverImage,
+            listFollow: response.listFollow,
+            listFollower: response.listFollower,
           });
       }
     }
@@ -163,12 +165,12 @@ const getAllUser = async (req, res) => {
 const getDataUser = async (req, res) => {
   try {
     const currentPage = Number(req.query.page || 1);
-    const dataUser = await User.findById({ _id: req.query.uid }).populate({
-      path: "listPost",
-      options: {
-        sort: { timeCreate: -1 },
-      },
-    });
+    const dataUser = await User.findById({ _id: req.query.uid });
+    const listPost = await Post.find({ creater: req.query.uid })
+      .populate({ path: "creater", select: "name _id avatar" })
+      .sort({ timeCreate: -1 })
+      .skip((currentPage - 1) * ITEMS_IN_PAGE)
+      .limit(ITEMS_IN_PAGE);
     const totalPostOfUser = await Post.countDocuments({
       creater: req.query.uid,
     });
@@ -177,7 +179,10 @@ const getDataUser = async (req, res) => {
       name: dataUser.name,
       avatar: dataUser.avatar,
       coverImage: dataUser.coverImage,
-      listPost: dataUser.listPost,
+      listPost: listPost,
+      listFollow: dataUser.listFollow,
+      listFollower: dataUser.listFollower,
+      totalPostOfUser: totalPostOfUser,
     };
     return res.status(200).json({
       status: 1,

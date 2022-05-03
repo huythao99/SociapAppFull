@@ -8,9 +8,10 @@ import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../constant/types';
 import PostItem from '../../components/PostItem';
-import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
+import {DEFAULT_AVATAR} from '../../constant/constants';
 import {requestGetPost, updateListPost} from '../../feature/post/postSlice';
 import {socket} from '../../socket/SocketClient';
+import ListEmpty from '../../components/ListEmpty';
 
 interface HeaderProps {
   avatarUser: string;
@@ -134,12 +135,13 @@ export default function HomeScreen() {
       keyExtractor={item => item._id}
       renderItem={renderItem}
       contentContainerStyle={{flexGrow: 1, backgroundColor: BLUE_GRAY_200}}
-      ListHeaderComponent={() => (
+      ListEmptyComponent={ListEmpty}
+      ListHeaderComponent={
         <HeaderFlatList
           onPress={onClickCreatePostButton}
           avatarUser={avatarUser ? avatarUser : DEFAULT_AVATAR}
         />
-      )}
+      }
       refreshing={isRefresh}
       onRefresh={onRefresh}
       onEndReached={onLoadMore}

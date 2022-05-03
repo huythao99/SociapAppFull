@@ -30,10 +30,16 @@ const User = new mongo.Schema({
   fcmToken: {
     type: String || null,
   },
-  listFriendRequest: [
+  listFollow: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "FriendRequest",
+      ref: "User",
+    },
+  ],
+  listFollower: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
   listPost: [

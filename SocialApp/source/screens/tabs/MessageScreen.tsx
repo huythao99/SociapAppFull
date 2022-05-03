@@ -17,6 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../constant/types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {socketChat} from '../../socket/SocketClient';
+import ListEmpty from '../../components/ListEmpty';
 
 type FormValues = {
   search: String;
@@ -175,13 +176,7 @@ export default function MessageScreen() {
         onEndReachedThreshold={0.5}
         refreshing={isRefresh}
         onRefresh={onRefresh}
-        ListEmptyComponent={() => {
-          return (
-            <ContainerTitleText>
-              <TitleText>Hãy bắt đầu cuộc trò chuyện của bạn</TitleText>
-            </ContainerTitleText>
-          );
-        }}
+        ListEmptyComponent={ListEmpty}
       />
     </Container>
   );

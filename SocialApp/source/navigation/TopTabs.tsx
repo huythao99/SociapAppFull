@@ -6,10 +6,16 @@ import PeopleScreen from '../screens/tabs/PeopleScreen';
 import SettingScreen from '../screens/tabs/SettingScreen';
 import NotifyScreen from '../screens/tabs/NotifyScreen';
 import MyTabBar from '../components/MyTabBar';
+import {useAppSelector} from '../app/hook';
+import {Text, View} from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function TopTabs() {
+  const totalNotRead = useAppSelector(
+    state => state.conversation.totalConversationNotRead,
+  );
+
   return (
     <Tab.Navigator
       tabBar={props => <MyTabBar {...props} />}

@@ -6,7 +6,8 @@ import {getConversationUrl} from '../../apis/url';
 
 interface ConversationState {
   listConversation: Array<ConversationItem>;
-  currentPage: Number;
+  currentPage: number;
+  totalConversationNotRead: number;
 }
 
 export const requestGetConversation = createAsyncThunk(
@@ -26,6 +27,7 @@ export const requestGetConversation = createAsyncThunk(
           listConversation: newListConversation,
           currentPage: res.current_page,
           total: res.total,
+          totalNotRead: res.totalNotRead,
         });
       });
     } catch (error) {
@@ -43,6 +45,7 @@ export const requestGetConversation = createAsyncThunk(
 const initialState: ConversationState = {
   listConversation: [],
   currentPage: 1,
+  totalConversationNotRead: 0,
 };
 
 export const conversationSlice = createSlice({
@@ -89,6 +92,7 @@ export const conversationSlice = createSlice({
         state.currentPage = action.payload.currentPage;
         if (action.payload.currentPage === 1) {
           state.listConversation = action.payload.listConversation;
+          state.totalConversationNotRead = action.payload.totalNotRead;
         } else {
           state.listConversation = [
             ...state.listConversation,

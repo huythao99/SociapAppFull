@@ -18,6 +18,8 @@ interface AuthState {
   coverImage: string;
   isLoadingSplash: boolean;
   existUser: boolean;
+  listFollow: Array<string>;
+  listFollower: Array<string>;
 }
 
 // Define the initial state using that type
@@ -31,6 +33,8 @@ const initialState: AuthState = {
   coverImage: '',
   isLoadingSplash: true,
   existUser: false,
+  listFollow: [],
+  listFollower: [],
 };
 
 export const requestSignin = createAsyncThunk(
@@ -196,6 +200,8 @@ export const authSlice = createSlice({
         state.coverImage = action.payload.coverImage;
         state.isLoadingSplash = false;
         state.existUser = true;
+        state.listFollow = action.payload.listFollow;
+        state.listFollower = action.payload.listFollower;
       } else {
         state.isLoadingSplash = false;
       }
