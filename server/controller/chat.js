@@ -68,6 +68,7 @@ const createMessage = async (req, res) => {
           lastMessage:
             message.content === "" ? "Đã gửi một ảnh" : message.content,
           timeSend: dataToSave._doc.timeCreate,
+          isSeen: false,
         },
         option
       );

@@ -48,9 +48,10 @@ const UserNameText = styled.Text`
 `;
 
 const ContentMessageText = styled.Text`
-  font-size: ${normalize(12)}px;
+  font-size: ${normalize(13)}px;
   color: ${(props: ContentTextProps) => (props.isSeen ? GREY_700 : BLACK)};
   margin-horizontal: ${(WIDTH / 100) * 4}px;
+  font-weight: ${(props: ContentTextProps) => (props.isSeen ? '400' : '700')};
 `;
 
 const ContentTimeText = styled(ContentMessageText)`
@@ -83,7 +84,8 @@ function ConversationComponent(props: ConversationComponentProps) {
           </ContentMessageText>
         </View>
       </LeftContainer>
-      <ContentTimeText>
+      <ContentTimeText
+        isSeen={props.uid === props.item.userSend ? true : props.item.isSeen}>
         {timeAgo(Number(new Date(props.item.timeSend.toString())))}
       </ContentTimeText>
     </Container>
@@ -94,7 +96,10 @@ function areEquals(
   prevProps: ConversationComponentProps,
   nextProps: ConversationComponentProps,
 ) {
-  if (prevProps.item.lastMessage === nextProps.item.lastMessage) {
+  if (
+    prevProps.item.lastMessage === nextProps.item.lastMessage &&
+    prevProps.item.isSeen === nextProps.item.isSeen
+  ) {
     return true;
   }
   return false;
