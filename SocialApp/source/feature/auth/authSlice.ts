@@ -185,6 +185,16 @@ export const authSlice = createSlice({
     updateCoverImage: (state, action) => {
       state.coverImage = action.payload.coverImage;
     },
+    updateListFollow: (state, action) => {
+      const indexOfUser = state.listFollow.findIndex(
+        (item: string) => item === action.payload.friendID,
+      );
+      if (indexOfUser === -1) {
+        state.listFollow = [...state.listFollow, action.payload.friendID];
+      } else {
+        state.listFollow.splice(indexOfUser, 1);
+      }
+    },
   },
   extraReducers: builder => {
     // sign in
@@ -226,7 +236,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const {loadingSplash, updateAvatar, updateCoverImage} =
+export const {loadingSplash, updateAvatar, updateCoverImage, updateListFollow} =
   authSlice.actions;
 
 export default authSlice.reducer;

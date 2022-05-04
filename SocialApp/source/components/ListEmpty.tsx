@@ -12,7 +12,7 @@ const Container = styled.View`
 
 const TitleText = styled.Text`
   font-weight: bold;
-  font-size: ${normalize(18)};
+  font-size: ${normalize(18)}px;
   color: ${GREY_600};
 `;
 

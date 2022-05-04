@@ -6,7 +6,10 @@ import PostItem from '../../components/PostItem';
 import {
   BLACK,
   BLUE_700,
+  BLUE_900,
   BLUE_GRAY,
+  BLUE_GRAY_200,
+  GREY_600,
   LIGHT_BLUE,
   RED_A400,
   TRANSPARENT,
@@ -30,11 +33,12 @@ import {
   requestUpdateAvatarUser,
   requestUpdateCoverImageUser,
 } from '../../feature/user/userSlice';
-import {showAlert} from '../../ultilities/Ultilities';
+import {checkUserFollowed, showAlert} from '../../ultilities/Ultilities';
 import LoadingScreen from '../../components/LoadingScreen';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import ListEmpty from '../../components/ListEmpty';
+import {updateListFollow} from '../../feature/auth/authSlice';
 
 const FlatListAnimated = Animated.createAnimatedComponent(FlatList);
 const ButtonAnimated = Animated.createAnimatedComponent(TouchableOpacity);
@@ -50,6 +54,8 @@ interface HeaderProps {
   onGoBack: () => void;
   listFollow: Array<string>;
   listFollower: Array<string>;
+  isFollowed: boolean;
+  onClickFollow: () => void;
 }
 
 type ProfileScreenProps = StackNavigationProp<
@@ -72,8 +78,8 @@ const Container = styled.View`
 
 const AvatarImageContainer = styled.TouchableOpacity`
   position: absolute;
-  bottom: 0;
-  align-self: center;
+  bottom: ${(WIDTH / 100) * 15}px;
+  left: ${(WIDTH / 100) * 4}px;
   justify-content: center;
   align-items: center;
 `;
@@ -84,6 +90,45 @@ const AvatarImage = styled.Image`
   border-radius: ${(WIDTH / 100) * 18}px;
   border-width: 5px;
   border-color: ${WHITE};
+`;
+
+const LastRow = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-horizontal: ${(WIDTH / 100) * 4}px;
+  padding-vertical: ${HEIGHT / 100}px;
+`;
+
+const FollowContainer = styled.View`
+  flex: 1;
+  padding-horizontal: ${(WIDTH / 100) * 2}px;
+`;
+
+const FollowText = styled.Text`
+  font-size: ${normalize(12)}px;
+  font-weight: bold;
+  text-align: left;
+  color: ${BLACK};
+  flex: 1;
+`;
+
+const FollowButton = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  padding-horizontal: ${(WIDTH / 100) * 2}px;
+  padding-vertical: ${HEIGHT / 100 / 2}px;
+  border-radius: ${WIDTH / 100}px;
+  background-color: ${props => (props.isFollowed ? WHITE : BLUE_900)};
+  border-width: 0.5px;
+  border-color: ${props => (props.isFollowed ? BLUE_GRAY_200 : WHITE)};
+`;
+
+const FollowButtonText = styled.Text`
+  margin-left: ${WIDTH / 100}px;
+  font-size: ${normalize(12)}px;
+  color: ${props => (props.isFollowed ? BLUE_900 : WHITE)};
+  font-weight: bold;
 `;
 
 const HeaderContainer = styled.View`
@@ -183,7 +228,7 @@ const HeaderFlatList = React.memo((props: HeaderProps) => {
           style={{
             width: WIDTH,
             height: WIDTH * 0.8,
-            marginBottom: (WIDTH / 100) * 24,
+            marginBottom: (WIDTH / 100) * 10,
           }}
           resizeMode="cover"
         />
@@ -217,11 +262,31 @@ const HeaderFlatList = React.memo((props: HeaderProps) => {
             />
           </ButtonChangeAvatar>
         )}
-        <UserNameText>{props.userName}</UserNameText>
       </AvatarImageContainer>
+      <LastRow>
+        <UserNameText>{props.userName}</UserNameText>
+        <FollowContainer>
+          <FollowText>Đang theo dõi {props.listFollow.length} người</FollowText>
+          <FollowText>{props.listFollower.length} người theo dõi</FollowText>
+        </FollowContainer>
+        {!props.canChangeAvatar && (
+          <FollowButton
+            isFollowed={props.isFollowed}
+            onPress={props.onClickFollow}>
+            <FontAwesome5
+              name="user-plus"
+              size={(WIDTH / 100) * 4}
+              color={props.isFollowed ? BLUE_900 : WHITE}
+            />
+            <FollowButtonText isFollowed={props.isFollowed}>
+              {props.isFollowed ? 'Bỏ theo dõi' : 'Theo dõi'}
+            </FollowButtonText>
+          </FollowButton>
+        )}
+      </LastRow>
     </HeaderContainer>
   );
-}, areEqualsHeader);
+});
 
 export default function ProfileScreen(props: ProfileProps) {
   const dispatch = useAppDispatch();
@@ -238,6 +303,7 @@ export default function ProfileScreen(props: ProfileProps) {
   const [isChangeAvatar, setIsChangeAvatar] = React.useState(false);
   const [listFollow, setListFollow] = React.useState([]);
   const [listFollower, setListFollower] = React.useState([]);
+  const listFollowOfUser = useAppSelector(state => state.auth.listFollow);
 
   const scrollY = useSharedValue(0);
 
@@ -425,12 +491,24 @@ export default function ProfileScreen(props: ProfileProps) {
     }
   };
 
+  const onClickFollow = () => {
+    dispatch(updateListFollow({friendID: props.route.params.uid}));
+    const newListFollow = [...listFollow];
+    newListFollow.push(userId);
+    setListFollow(newListFollow);
+  };
+
   const renderItem = ({item}) => {
     return <PostItem uid={userId} item={item} onClickUserOfPost={() => {}} />;
   };
 
   React.useEffect(() => {
     getDataUser(1);
+    return () => {
+      setListPost([]);
+      setListFollow([]);
+      setListFollower([]);
+    };
   }, []);
 
   return (
@@ -459,6 +537,8 @@ export default function ProfileScreen(props: ProfileProps) {
               onGoBack={onGoBack}
               listFollow={listFollow}
               listFollower={listFollower}
+              isFollowed={checkUserFollowed(userId, listFollow)}
+              onClickFollow={onClickFollow}
             />
           }
         />
@@ -523,12 +603,15 @@ export default function ProfileScreen(props: ProfileProps) {
   );
 }
 
-function areEqualsHeader(prevProps: HeaderProps, nextProps: HeaderProps) {
-  if (
-    prevProps.avatarUser === nextProps.avatarUser &&
-    prevProps.coverImage === nextProps.coverImage
-  ) {
-    return true;
-  }
-  return false;
-}
+// function areEqualsHeader(prevProps: HeaderProps, nextProps: HeaderProps) {
+//   if (
+//     prevProps.avatarUser === nextProps.avatarUser &&
+//     prevProps.coverImage === nextProps.coverImage &&
+//     prevProps.canChangeAvatar === nextProps.canChangeAvatar &&
+//     prevProps.listFollow.length === nextProps.listFollow.length &&
+//     prevProps.isFollowed === nextProps.isFollowed
+//   ) {
+//     return true;
+//   }
+//   return false;
+// }

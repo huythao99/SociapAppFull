@@ -105,3 +105,10 @@ export const requestPermission = async (type: string) => {
   }
   return result;
 };
+
+export const checkUserFollowed = (
+  userID: string,
+  listFollow: Array<string>,
+) => {
+  return listFollow.findIndex((item: string) => item === userID) !== -1;
+};
