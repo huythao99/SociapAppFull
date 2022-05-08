@@ -16,9 +16,8 @@ import notifee, {
 async function onMessageReceived(message) {
   const channelId = await createChannelID();
   notifee.displayNotification({
-    title:
-      '<p style="color: #4caf50;"><b>Styled HTMLTitle Background</span></p></b></p> &#128576;',
-    body: 'The <p style="text-decoration: line-through">body cannn</p> also be <p style="color: #ffffff; background-color: #9c27b0"><i>styled too</i></p> &#127881;!',
+    title: message.notification.title,
+    body: message.notification.body,
     android: {
       channelId: channelId,
       smallIcon: 'ic_small_icon',

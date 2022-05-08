@@ -4,13 +4,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { ITEMS_IN_PAGE, WIDTH_IMAGE, HEIGHT_IMAGE } = require("../constants");
 const cloudinary = require("cloudinary");
-const sharp = require("sharp");
-
 require("dotenv").config();
 const {
   validationSignup,
   validationSignin,
 } = require("../validation/validation");
+const { sendNotifiOfFollow } = require("../controller/notification");
 
 const getAllFCMTokenUser = async (userID) => {
   const listFCMToken = await User.find({ _id: { $ne: userID } }).select(
@@ -246,6 +245,68 @@ const updateCoverImageUser = async (req, res) => {
   }
 };
 
+// follow
+const followUser = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      $and: [
+        {
+          listFollow: req.body.userID,
+        },
+        {
+          _id: req.user._id,
+        },
+      ],
+    });
+    const option = { new: true };
+    if (user) {
+      await User.findByIdAndUpdate(
+        { _id: req.user._id },
+        {
+          $pull: {
+            listFollow: req.body.userID,
+          },
+        },
+        option
+      );
+      await User.findByIdAndUpdate(
+        { _id: req.body.userID },
+        {
+          $pull: {
+            listFollower: req.user._id,
+          },
+        },
+        option
+      );
+    } else {
+      await User.findByIdAndUpdate(
+        { _id: req.user._id },
+        {
+          $push: {
+            listFollow: req.body.userID,
+          },
+        }
+      );
+      await User.findByIdAndUpdate(
+        { _id: req.body.userID },
+        {
+          $push: {
+            listFollower: req.user._id,
+          },
+        }
+      );
+      sendNotifiOfFollow(req.body.userID, req.user._id);
+    }
+    return res.status(200).json({
+      status: 1,
+      message: "follow success",
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
 module.exports = {
   getAllFCMTokenUser,
   signIn,
@@ -255,4 +316,5 @@ module.exports = {
   getDataUser,
   updateAvatarUser,
   updateCoverImageUser,
+  followUser,
 };

@@ -54,6 +54,10 @@ export const getUpdateCoverImageUserUrl = () => {
   return '/api/user/updateCoverImage';
 };
 
+export const getFollowUserUrl = () => {
+  return '/api/user/followUser';
+};
+
 // chat
 export const getConversationUrl = () => {
   return '/api/chat/getConversation';

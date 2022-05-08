@@ -29,6 +29,7 @@ import {RootStackParamList} from '../../constant/types';
 import {useNavigation} from '@react-navigation/native';
 import {DEFAULT_AVATAR, DEFAULT_COVER_IMAGE} from '../../constant/constants';
 import {
+  requestFollowUser,
   requestGetDataUser,
   requestUpdateAvatarUser,
   requestUpdateCoverImageUser,
@@ -303,6 +304,7 @@ export default function ProfileScreen(props: ProfileProps) {
   const [isChangeAvatar, setIsChangeAvatar] = React.useState(false);
   const [listFollow, setListFollow] = React.useState([]);
   const [listFollower, setListFollower] = React.useState([]);
+  const [timer, setTimer] = React.useState(null);
   const listFollowOfUser = useAppSelector(state => state.auth.listFollow);
 
   const scrollY = useSharedValue(0);
@@ -492,10 +494,25 @@ export default function ProfileScreen(props: ProfileProps) {
   };
 
   const onClickFollow = () => {
+    let newTimer = timer;
     dispatch(updateListFollow({friendID: props.route.params.uid}));
     const newListFollow = [...listFollow];
-    newListFollow.push(userId);
+    const indexOfItem = newListFollow.findIndex(
+      (item: string) => item === userId,
+    );
+    if (indexOfItem !== -1) {
+      newListFollow.splice(indexOfItem, 1);
+    } else {
+      newListFollow.push(userId);
+    }
     setListFollow(newListFollow);
+    if (newTimer) {
+      clearTimeout(timer);
+    } else {
+      newTimer = setTimeout(() => {
+        dispatch(requestFollowUser({userID: props.route.params.uid}));
+      });
+    }
   };
 
   const renderItem = ({item}) => {

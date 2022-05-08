@@ -30,12 +30,14 @@ const User = new mongo.Schema({
   fcmToken: {
     type: String || null,
   },
+  // danh sach nguoi ma user theo doi
   listFollow: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
   ],
+  // danh sach nhung nguoi theo doi user
   listFollower: [
     {
       type: mongoose.Schema.Types.ObjectId,

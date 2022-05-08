@@ -5,6 +5,7 @@ const {
   getDataUser,
   updateAvatarUser,
   updateCoverImageUser,
+  followUser,
 } = require("./../controller/user");
 const multer = require("multer");
 
@@ -46,5 +47,8 @@ userRoute.patch("/updateAvatar", verifyToken, upload, updateAvatarUser);
 
 // update cover image
 userRoute.patch("/updateCoverImage", verifyToken, upload, updateCoverImageUser);
+
+// follow
+userRoute.patch("/followUser", verifyToken, followUser);
 
 module.exports = userRoute;

@@ -4,11 +4,16 @@ import {DataUser, ImageFile, ListUser, UserItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {
   getDataUserUrl,
+  getFollowUserUrl,
   getListUserUrl,
   getUpdateAvatarUserUrl,
   getUpdateCoverImageUserUrl,
 } from '../../apis/url';
-import {updateAvatar, updateCoverImage} from '../auth/authSlice';
+import {
+  updateAvatar,
+  updateCoverImage,
+  updateListFollow,
+} from '../auth/authSlice';
 
 interface UserState {}
 
@@ -162,6 +167,30 @@ export const requestUpdateCoverImageUser = createAsyncThunk(
         resolve({
           status: true,
           coverImage: res.coverImage,
+        });
+      });
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestFollowUser = createAsyncThunk(
+  'user/requestFollowUser',
+  async ({userID}: {userID: string}): Promise<Partial<DataUser>> => {
+    try {
+      const data = {
+        userID,
+      };
+      await callAPI('patch', getFollowUserUrl(), data, {});
+      return new Promise(resolve => {
+        resolve({
+          status: true,
         });
       });
     } catch (error) {
