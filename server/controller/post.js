@@ -2,6 +2,10 @@ const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const { ITEMS_IN_PAGE } = require("../constants");
 const cloudinary = require("cloudinary");
+const {
+  sendNotifiOfNewPost,
+  sendNotificationOfComment,
+} = require("../controller/notification");
 
 const getPostByID = async (idPost) => {
   const post = await Post.findById({ _id: idPost }).populate({
@@ -52,6 +56,7 @@ const createPost = async (req, res) => {
         uriImage: uriImage.url,
       });
       const dataToSave = await newPost.save();
+      sendNotifiOfNewPost(req.user._id, dataToSave._doc._id);
       return res.status(200).json({
         status: 1,
         message: "create post success",
@@ -63,6 +68,7 @@ const createPost = async (req, res) => {
         content: req.body.content,
       });
       const dataToSave = await newPost.save();
+      sendNotifiOfNewPost(req.user._id, dataToSave._doc._id);
       return res.status(200).json({
         status: 1,
         message: "create post success",
@@ -165,6 +171,7 @@ const createComment = async (req, res) => {
         { $push: { listComment: dataToSave._doc._id } },
         options
       );
+      sendNotificationOfComment(req.user._id, req.body.postID);
       return res.status(200).json({
         status: 1,
         message: "create comment success",

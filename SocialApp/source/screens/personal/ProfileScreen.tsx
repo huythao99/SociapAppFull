@@ -267,8 +267,10 @@ const HeaderFlatList = React.memo((props: HeaderProps) => {
       <LastRow>
         <UserNameText>{props.userName}</UserNameText>
         <FollowContainer>
-          <FollowText>Đang theo dõi {props.listFollow.length} người</FollowText>
-          <FollowText>{props.listFollower.length} người theo dõi</FollowText>
+          <FollowText>
+            Đang theo dõi {props.listFollower.length} người
+          </FollowText>
+          <FollowText>{props.listFollow.length} người theo dõi</FollowText>
         </FollowContainer>
         {!props.canChangeAvatar && (
           <FollowButton

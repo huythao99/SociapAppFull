@@ -3,33 +3,47 @@ var admin = require("firebase-admin");
 var serviceAccount = require("../socialapp-e4586-firebase-adminsdk-mqkwk-0716cb3ce2.json");
 const User = require("../models/User");
 const Notification = require("../models/Notification");
+const Post = require("../models/Post");
+const { default: mongoose } = require("mongoose");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-const sendNotifiOfNewPost = async (listFCMToken, userID, postID) => {
-  const user = await User.findById({ _id: userID });
-  if (!user || listFCMToken.length === 0) {
-    return;
-  }
+const sendNotifiOfNewPost = async (userID, postID) => {
+  const user = await User.findById({ _id: userID }).populate({
+    path: "listFollower",
+    select: "fcmToken",
+  });
+  const listFCMToken = user.listFollower.map((item) => {
+    return item.fcmToken;
+  });
   admin.messaging().sendMulticast({
     tokens: listFCMToken,
     notification: {
-      body: "This is an FCM notification that displays an image!",
-      title: "FCM Notification",
+      body: `${user.name} đã thêm một bài viết mới`,
+      title: "SocialApp thông báo",
     },
-    data: {},
+    data: {
+      post: JSON.stringify({ postID }),
+      type: "CREATE_POST",
+    },
     android: {
       notification: {
-        body: `${user.name} đã thêm một bài viết vào trang cá nhân`,
-        title: "Thông báo",
         sound: "default",
         color: "#fff566",
         priority: "high",
       },
     },
   });
+  const newNotification = new Notification({
+    owner: userID,
+    body: `${user.name} đã thêm một bài viết mới`,
+    title: "SocialApp thông báo",
+    type: "CREATE_POST",
+    post: postID,
+  });
+  await newNotification.save();
 };
 
 const sendNotifiOfFollow = async (userID, followerID) => {
@@ -62,4 +76,100 @@ const sendNotifiOfFollow = async (userID, followerID) => {
   await newNotification.save();
 };
 
-module.exports = { sendNotifiOfNewPost, sendNotifiOfFollow };
+const sendNotificationOfComment = async (userID, postID) => {
+  const user = await User.findById({ _id: userID });
+  const post = await Post.findById({ _id: postID })
+    .populate({
+      path: "creater",
+      select: "fcmToken",
+    })
+    .populate({
+      path: "listComment",
+      populate: {
+        path: "user",
+        select: "fcmToken",
+      },
+    });
+  const listUserComment = post.listComment.filter(
+    (item) => !item.user?._id.equals(user._id)
+  );
+  const listFCMToken = listUserComment.map((item) => {
+    return item.user.fcmToken;
+  });
+  const listUser = listUserComment.map((item) => {
+    return item.user._id;
+  });
+  if (!user._id.equals(post.creater._id)) {
+    admin.messaging().sendToDevice(post.creater.fcmToken, {
+      data: {
+        user: JSON.stringify({
+          name: user.name,
+          _id: user._id,
+          avatar: user.avatar,
+        }),
+        post: JSON.stringify({ postID }),
+        type: "COMMENT",
+      },
+      notification: {
+        body: `${user.name} đã bình luận về bài một viết của bạn`,
+        title: "SocialApp thông báo",
+        sound: "default",
+        color: "#fff566",
+        priority: "high",
+      },
+    });
+  }
+  if (listFCMToken.length > 0) {
+    admin.messaging().sendMulticast({
+      tokens: listFCMToken,
+      notification: {
+        body: `${user.name} đã bình luận về một bài viết mà bạn theo dõi`,
+        title: "SocialApp thông báo",
+      },
+      data: {
+        post: JSON.stringify({ postID }),
+        user: JSON.stringify({
+          name: user.name,
+          _id: user._id,
+          avatar: user.avatar,
+        }),
+        type: "COMMENT",
+      },
+      android: {
+        notification: {
+          sound: "default",
+          color: "#fff566",
+          priority: "high",
+        },
+      },
+    });
+  }
+  const newNotification = new Notification({
+    owner: post.creater._id,
+    body: `${user.name} đã bình luận về bài một viết của bạn`,
+    title: "SocialApp thông báo",
+    type: "COMMENT",
+    user: user._id,
+    post: postID,
+  });
+  const newListNotification = listUser.map((item) => {
+    return {
+      owner: item,
+      body: `${user.name} đã bình luận về bài một viết của bạn`,
+      title: "SocialApp thông báo",
+      type: "COMMENT",
+      user: user._id,
+      post: postID,
+    };
+  });
+  if (user._id !== post.creater._id) {
+    newListNotification.push(newNotification);
+  }
+  await Notification.insertMany([...newListNotification]);
+};
+
+module.exports = {
+  sendNotifiOfNewPost,
+  sendNotifiOfFollow,
+  sendNotificationOfComment,
+};
