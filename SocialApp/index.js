@@ -24,7 +24,9 @@ async function onMessageReceived(message) {
       color: '#2979FF',
       importance: AndroidImportance.HIGH,
       visibility: AndroidVisibility.PUBLIC,
+      sound: 'default',
     },
+    data: message.data,
   });
 }
 
@@ -42,10 +44,6 @@ messaging().setBackgroundMessageHandler(onMessageReceived);
 
 notifee.onBackgroundEvent(async ({type, detail}) => {
   const {notification, pressAction} = detail;
-  console.log('index.js');
-  console.log(pressAction);
-  console.log(notification);
-  console.log(type);
   // Check if the user pressed the "Mark as read" action
   if (type === EventType.PRESS) {
     // Update external API

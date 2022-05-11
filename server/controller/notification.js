@@ -4,7 +4,6 @@ var serviceAccount = require("../socialapp-e4586-firebase-adminsdk-mqkwk-0716cb3
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const Post = require("../models/Post");
-const { default: mongoose } = require("mongoose");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -27,13 +26,6 @@ const sendNotifiOfNewPost = async (userID, postID) => {
     data: {
       post: JSON.stringify({ postID }),
       type: "CREATE_POST",
-    },
-    android: {
-      notification: {
-        sound: "default",
-        color: "#fff566",
-        priority: "high",
-      },
     },
   });
   const newNotification = new Notification({
@@ -61,9 +53,6 @@ const sendNotifiOfFollow = async (userID, followerID) => {
     notification: {
       body: `${follower.name} đã theo dõi bạn`,
       title: "Đã có người theo dõi bạn trên SocialApp",
-      sound: "default",
-      color: "#fff566",
-      priority: "high",
     },
   });
   const newNotification = new Notification({
@@ -91,7 +80,11 @@ const sendNotificationOfComment = async (userID, postID) => {
       },
     });
   const listUserComment = post.listComment.filter(
-    (item) => !item.user?._id.equals(user._id)
+    (item) =>
+      !(
+        item.user?._id?.equals(user._id) ||
+        item.user?._id?.equals(post.creater._id)
+      )
   );
   const listFCMToken = listUserComment.map((item) => {
     return item.user.fcmToken;
@@ -113,9 +106,6 @@ const sendNotificationOfComment = async (userID, postID) => {
       notification: {
         body: `${user.name} đã bình luận về bài một viết của bạn`,
         title: "SocialApp thông báo",
-        sound: "default",
-        color: "#fff566",
-        priority: "high",
       },
     });
   }
@@ -134,13 +124,6 @@ const sendNotificationOfComment = async (userID, postID) => {
           avatar: user.avatar,
         }),
         type: "COMMENT",
-      },
-      android: {
-        notification: {
-          sound: "default",
-          color: "#fff566",
-          priority: "high",
-        },
       },
     });
   }
