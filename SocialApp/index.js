@@ -10,7 +10,6 @@ import messaging from '@react-native-firebase/messaging';
 import notifee, {
   AndroidImportance,
   AndroidVisibility,
-  EventType,
 } from '@notifee/react-native';
 
 async function onMessageReceived(message) {
@@ -25,6 +24,10 @@ async function onMessageReceived(message) {
       importance: AndroidImportance.HIGH,
       visibility: AndroidVisibility.PUBLIC,
       sound: 'default',
+      pressAction: {
+        id: 'default',
+        mainComponent: appName,
+      },
     },
     data: message.data,
   });
@@ -42,17 +45,7 @@ messaging().onMessage(onMessageReceived);
 
 messaging().setBackgroundMessageHandler(onMessageReceived);
 
-notifee.onBackgroundEvent(async ({type, detail}) => {
-  const {notification, pressAction} = detail;
-  // Check if the user pressed the "Mark as read" action
-  if (type === EventType.PRESS) {
-    // Update external API
-    console.log('run');
-
-    // Remove the notification
-    await notifee.cancelNotification(notification.id);
-  }
-});
+notifee.onBackgroundEvent(async ({type, detail}) => {});
 
 function HeadlessCheck({isHeadless}) {
   if (isHeadless) {
