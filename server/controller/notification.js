@@ -4,10 +4,78 @@ var serviceAccount = require("../socialapp-e4586-firebase-adminsdk-mqkwk-0716cb3
 const User = require("../models/User");
 const Notification = require("../models/Notification");
 const Post = require("../models/Post");
+const { ITEMS_IN_PAGE } = require("../constants");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
+const getNotify = async (req, res) => {
+  try {
+    const currentPage = Number(req.query.page || 1);
+    const notify = await Notification.find({
+      owner: req.user._id,
+    })
+      .populate({
+        path: "user",
+        select: "_id name avatar",
+      })
+      .sort({ timeCreate: -1 })
+      .skip((currentPage - 1) * ITEMS_IN_PAGE)
+      .limit(ITEMS_IN_PAGE);
+    const totalNotify = await Notification.countDocuments({
+      owner: req.user._id,
+    });
+    const totalNotifyNotRead = await Notification.countDocuments({
+      $and: [
+        { owner: req.user._id },
+        {
+          isSeen: {
+            $ne: true,
+          },
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      message: "get list notification success",
+      status: 1,
+      listNotify: notify,
+      totalNotify,
+      totalNotifyNotRead,
+      currentPage,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+};
+
+const updateStatusNotify = async (req, res) => {
+  try {
+    const options = {
+      new: true,
+    };
+    await Notification.findByIdAndUpdate(
+      { _id: req.body._id },
+      {
+        isSeen: true,
+      },
+      options
+    );
+    return res.status(200).json({
+      status: 1,
+      message: "update success",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      status: 0,
+      message: error.message,
+    });
+  }
+};
 
 const sendNotifiOfNewPost = async (userID, postID) => {
   const user = await User.findById({ _id: userID }).populate({
@@ -155,4 +223,6 @@ module.exports = {
   sendNotifiOfNewPost,
   sendNotifiOfFollow,
   sendNotificationOfComment,
+  getNotify,
+  updateStatusNotify,
 };

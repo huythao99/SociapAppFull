@@ -70,3 +70,12 @@ export const getMessage = () => {
 export const sendMessage = () => {
   return '/api/chat/sendMessage';
 };
+
+// notification
+export const getNotificationUrl = () => {
+  return '/api/notify/getNotify';
+};
+
+export const getUpdateStatusNotificationUrl = () => {
+  return '/api/notify/updateStatusNotify';
+};

@@ -21,6 +21,7 @@ const {
 const { getPostByID, getCommentByID } = require("./controller/post");
 const { getAllFCMTokenUser } = require("./controller/user");
 const { sendNotifiOfNewPost } = require("./controller/notification");
+const notifyRoute = require("./routes/notifyRoute");
 app.use(cors());
 
 mongo.connect(mongoString);
@@ -43,6 +44,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/post", postRoute);
 app.use("/api/user", userRoute);
 app.use("/api/chat", chatRoute);
+app.use("/api/notify", notifyRoute);
 
 cloudinary.config({
   cloud_name: "dbhjxaqce",

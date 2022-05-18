@@ -40,6 +40,7 @@ export type RootStackParamList = {
   CommentPostScreen: {
     postID: string;
   };
+  NotificationScreen: undefined;
 };
 
 export interface PostItem {
@@ -176,4 +177,28 @@ export interface Message {
   conversationID?: string;
   messageResponse?: MessageItem;
   message?: string;
+}
+
+export interface NotificationItem {
+  owner: string;
+  timeCreate: Date;
+  body: string;
+  title: string;
+  type: string;
+  post: string;
+  user: {
+    _id: string;
+    name: string;
+    avatar: string;
+  };
+  isSeen: boolean;
+  _id: string;
+}
+
+export interface Notification {
+  status?: Boolean;
+  listNotification?: Array<NotificationItem>;
+  currentPage?: number;
+  totalNotification?: number;
+  totalNotificationNotRead?: number;
 }

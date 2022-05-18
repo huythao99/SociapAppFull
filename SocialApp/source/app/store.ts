@@ -4,6 +4,7 @@ import postReducer from '../feature/post/postSlice';
 import userReducer from '../feature/user/userSlice';
 import conversationReducer from '../feature/message/conversationSlice';
 import messageReducer from '../feature/message/messageSlice';
+import notificationReducer from '../feature/notification/notificationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     user: userReducer,
     conversation: conversationReducer,
     message: messageReducer,
+    notify: notificationReducer,
   },
 });
 

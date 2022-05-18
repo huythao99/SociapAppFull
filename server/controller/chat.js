@@ -143,7 +143,7 @@ const getConversation = async (req, res) => {
           $or: [{ userCreator: req.user._id }, { participants: req.user._id }],
         },
         {
-          isSeen: false,
+          isSeen: { $ne: true },
         },
       ],
     });

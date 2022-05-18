@@ -2,6 +2,7 @@ export const BLACK = '#000000';
 
 export const BLUE_A200 = '#448AFF';
 export const BLUE_A400 = '#2979FF';
+export const BLUE_50 = '#E3F2FD';
 export const BLUE_700 = '#1976D2';
 export const BLUE_900 = '#0D47A1';
 export const BLUE_GRAY = '#ECEFF1';

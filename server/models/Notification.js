@@ -30,6 +30,10 @@ const Notification = new mongo.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  isSeen: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongo.model("Notification", Notification);
