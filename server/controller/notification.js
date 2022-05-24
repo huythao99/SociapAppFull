@@ -219,10 +219,43 @@ const sendNotificationOfComment = async (userID, postID) => {
   await Notification.insertMany([...newListNotification]);
 };
 
+const sendNotifyNewMessage = async (message) => {
+  try {
+    const listUserID = message.participants
+      .filter((item) => item._id !== message.userSend._id)
+      .map((item) => {
+        return item._id;
+      });
+    const listUser = await User.find({
+      _id: { $in: listUserID },
+    });
+    const listFCMToken = listUser.map((item) => item.fcmToken);
+    if (listFCMToken.length > 0) {
+      admin.messaging().sendMulticast({
+        tokens: listFCMToken,
+        notification: {
+          body: message.uriIamge
+            ? `${message.userSend.name} đã gửi cho bạn một ảnh`
+            : `${message.content}`,
+          title: `Bạn có tin nhắn mới từ ${message.userSend.name}`,
+        },
+        data: {
+          conversationID: message.conversation,
+          user: JSON.stringify({ ...message.userSend }),
+          type: "MESSAGE",
+        },
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   sendNotifiOfNewPost,
   sendNotifiOfFollow,
   sendNotificationOfComment,
   getNotify,
   updateStatusNotify,
+  sendNotifyNewMessage,
 };

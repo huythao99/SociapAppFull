@@ -21,6 +21,7 @@ export const requestGetConversation = createAsyncThunk(
       const newListConversation = res.listConversation.filter(
         (item: ConversationItem) => item.lastMessage !== '',
       );
+      console.log(res);
       return new Promise(resolve => {
         resolve({
           status: true,

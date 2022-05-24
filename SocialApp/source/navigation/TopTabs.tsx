@@ -13,18 +13,13 @@ import styled from 'styled-components/native';
 
 const Tab = createMaterialTopTabNavigator();
 
-type NumberContainerProps = {
-  total: number;
-};
-
 const NumberContainer = styled.View`
   width: ${(WIDTH / 100) * 6}px;
   height: ${(WIDTH / 100) * 6}px;
   align-items: center;
   justify-content: center;
   border-radius: ${(WIDTH / 100) * 4}px;
-  background-color: ${(props: NumberContainerProps) =>
-    props.total === 0 ? WHITE : RED_A400};
+  background-color: ${RED_A400};
 `;
 
 const NumberText = styled.Text`
@@ -96,13 +91,16 @@ export default function TopTabs() {
               />
             );
           },
-          tabBarBadge: () => (
-            <NumberContainer total={totalConversationNotRead}>
-              <NumberText>
-                {totalConversationNotRead > 9 ? '9+' : totalConversationNotRead}
-              </NumberText>
-            </NumberContainer>
-          ),
+          tabBarBadge: () =>
+            totalConversationNotRead === 0 ? null : (
+              <NumberContainer>
+                <NumberText>
+                  {totalConversationNotRead > 9
+                    ? '9+'
+                    : totalConversationNotRead}
+                </NumberText>
+              </NumberContainer>
+            ),
         }}
       />
       <Tab.Screen
@@ -119,15 +117,14 @@ export default function TopTabs() {
               />
             );
           },
-          tabBarBadge: () => (
-            <NumberContainer total={totalNotifiNotRead}>
-              {totalNotifiNotRead > 0 && (
+          tabBarBadge: () =>
+            totalNotifiNotRead === 0 ? null : (
+              <NumberContainer>
                 <NumberText>
                   {totalNotifiNotRead > 9 ? '9+' : totalNotifiNotRead}
                 </NumberText>
-              )}
-            </NumberContainer>
-          ),
+              </NumberContainer>
+            ),
         }}
       />
       <Tab.Screen

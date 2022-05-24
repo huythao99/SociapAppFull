@@ -20,7 +20,10 @@ const {
 } = require("./controller/chat");
 const { getPostByID, getCommentByID } = require("./controller/post");
 const { getAllFCMTokenUser } = require("./controller/user");
-const { sendNotifiOfNewPost } = require("./controller/notification");
+const {
+  sendNotifiOfNewPost,
+  sendNotifyNewMessage,
+} = require("./controller/notification");
 const notifyRoute = require("./routes/notifyRoute");
 app.use(cors());
 
@@ -67,15 +70,11 @@ io.on("connection", (socket) => {
   socket.on("createPost", async (post) => {
     const response = await getPostByID(post._id);
     io.emit("updatePost", response);
-    // const listFCMToken = await getAllFCMTokenUser(post.creater);
-    // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });
 
   socket.on("createComment", async (comment) => {
     const response = await getCommentByID(comment._id);
     io.emit("updateComment", response);
-    // const listFCMToken = await getAllFCMTokenUser(post.creater);
-    // sendNotifiOfNewPost(listFCMToken, post.creater, post._id);
   });
 });
 
@@ -90,6 +89,9 @@ socketChat.on("connection", (socket) => {
     socket.to(roomID).emit("receiverMessage", message);
     const data = await getConversationByID(roomID);
     socketChat.emit("updateConversation", data);
+    if (socket.adapter.rooms.get(roomID).size === 1) {
+      sendNotifyNewMessage(message);
+    }
   });
 
   socket.on("leave room", async (roomID, userID) => {

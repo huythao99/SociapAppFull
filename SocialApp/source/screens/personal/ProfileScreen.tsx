@@ -307,7 +307,6 @@ export default function ProfileScreen(props: ProfileProps) {
   const [listFollow, setListFollow] = React.useState([]);
   const [listFollower, setListFollower] = React.useState([]);
   const [timer, setTimer] = React.useState(null);
-  const listFollowOfUser = useAppSelector(state => state.auth.listFollow);
 
   const scrollY = useSharedValue(0);
 
@@ -372,6 +371,7 @@ export default function ProfileScreen(props: ProfileProps) {
   const onOpenLibrary = async () => {
     const response = await launchImageLibrary({
       mediaType: 'photo',
+      quality: 0.6,
     });
     if (response.didCancel) {
       return;
@@ -401,6 +401,7 @@ export default function ProfileScreen(props: ProfileProps) {
     const response = await launchCamera({
       mediaType: 'photo',
       cameraType: 'front',
+      quality: 0.6,
     });
     if (response.didCancel) {
       return;

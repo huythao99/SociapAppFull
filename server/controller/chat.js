@@ -145,6 +145,9 @@ const getConversation = async (req, res) => {
         {
           isSeen: { $ne: true },
         },
+        {
+          userSend: { $ne: req.user._id },
+        },
       ],
     });
     return res.status(200).json({

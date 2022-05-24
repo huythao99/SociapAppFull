@@ -11,32 +11,56 @@ import notifee, {
   AndroidImportance,
   AndroidVisibility,
 } from '@notifee/react-native';
+import {DEFAULT_AVATAR} from './source/constant/constants';
 
 async function onMessageReceived(message) {
   const channelId = await createChannelID();
-  notifee.displayNotification({
-    title: message.notification.title,
-    body: message.notification.body,
-    android: {
-      channelId: channelId,
-      smallIcon: 'ic_small_icon',
-      color: '#2979FF',
-      importance: AndroidImportance.HIGH,
-      visibility: AndroidVisibility.PUBLIC,
-      sound: 'default',
-      pressAction: {
-        id: 'default',
-        mainComponent: appName,
+  if (message.data.type === 'MESSAGE') {
+    const user = JSON.parse(message.data.user);
+    notifee.displayNotification({
+      title: message.notification.title,
+      body: message.notification.body,
+      android: {
+        channelId: channelId,
+        smallIcon: 'ic_small_icon',
+        color: '#2979FF',
+        importance: AndroidImportance.HIGH,
+        visibility: AndroidVisibility.PUBLIC,
+        largeIcon: user.avatar || DEFAULT_AVATAR,
+        pressAction: {
+          id: 'default',
+          mainComponent: appName,
+        },
       },
-    },
-    data: message.data,
-  });
+      data: message.data,
+    });
+  } else {
+    notifee.displayNotification({
+      title: message.notification.title,
+      body: message.notification.body,
+      android: {
+        channelId: channelId,
+        smallIcon: 'ic_small_icon',
+        color: '#2979FF',
+        importance: AndroidImportance.HIGH,
+        visibility: AndroidVisibility.PUBLIC,
+        sound: 'default',
+        pressAction: {
+          id: 'default',
+          mainComponent: appName,
+        },
+      },
+      data: message.data,
+    });
+  }
 }
 
 const createChannelID = async () => {
   const channelId = await notifee.createChannel({
     id: 'default',
     name: 'Default Channel',
+    sound: 'messenger',
+    vibration: true,
   });
   return channelId;
 };

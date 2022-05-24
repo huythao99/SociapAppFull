@@ -202,7 +202,7 @@ export default function CreatePostScreen() {
     launchCamera(
       {
         mediaType: 'photo',
-        quality: 0.9,
+        quality: 0.6,
         cameraType: 'back',
       },
       response => {
@@ -221,7 +221,7 @@ export default function CreatePostScreen() {
     launchImageLibrary(
       {
         mediaType: 'photo',
-        quality: 0.9,
+        quality: 0.6,
       },
       response => {
         if (response.assets) {
