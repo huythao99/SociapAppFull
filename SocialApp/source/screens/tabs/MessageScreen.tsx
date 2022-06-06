@@ -131,7 +131,7 @@ export default function MessageScreen() {
           (item: {_id: string}) => item._id === userId,
         ) !== -1
       ) {
-        dispatch(updateConversation({conversation: {...data}}));
+        dispatch(updateConversation({conversation: {...data}, user: userId}));
       }
     });
     socketChat.on('updateStatusConversation', conversationID => {

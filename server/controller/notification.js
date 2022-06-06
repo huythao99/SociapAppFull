@@ -87,13 +87,11 @@ const sendNotifiOfNewPost = async (userID, postID) => {
   });
   admin.messaging().sendMulticast({
     tokens: listFCMToken,
-    notification: {
-      body: `${user.name} đã thêm một bài viết mới`,
-      title: "SocialApp thông báo",
-    },
     data: {
       post: JSON.stringify({ postID }),
       type: "CREATE_POST",
+      body: `${user.name} đã thêm một bài viết mới`,
+      title: "SocialApp thông báo",
     },
   });
   const newNotification = new Notification({
@@ -117,8 +115,6 @@ const sendNotifiOfFollow = async (userID, followerID) => {
         avatar: follower.avatar,
       }),
       type: "FOLLOW",
-    },
-    notification: {
       body: `${follower.name} đã theo dõi bạn`,
       title: "Đã có người theo dõi bạn trên SocialApp",
     },
@@ -134,89 +130,89 @@ const sendNotifiOfFollow = async (userID, followerID) => {
 };
 
 const sendNotificationOfComment = async (userID, postID) => {
-  const user = await User.findById({ _id: userID });
-  const post = await Post.findById({ _id: postID })
-    .populate({
-      path: "creater",
-      select: "fcmToken",
-    })
-    .populate({
-      path: "listComment",
-      populate: {
-        path: "user",
+  try {
+    const user = await User.findById({ _id: userID });
+    const post = await Post.findById({ _id: postID })
+      .populate({
+        path: "creater",
         select: "fcmToken",
-      },
+      })
+      .populate({
+        path: "listComment",
+        populate: {
+          path: "user",
+          select: "fcmToken",
+        },
+      });
+    const listUserComment = post.listComment.filter(
+      (item) =>
+        !(
+          item.user?._id?.equals(user._id) ||
+          item.user?._id?.equals(post.creater._id)
+        )
+    );
+    const listFCMToken = listUserComment.map((item) => {
+      return item.user.fcmToken;
     });
-  const listUserComment = post.listComment.filter(
-    (item) =>
-      !(
-        item.user?._id?.equals(user._id) ||
-        item.user?._id?.equals(post.creater._id)
-      )
-  );
-  const listFCMToken = listUserComment.map((item) => {
-    return item.user.fcmToken;
-  });
-  const listUser = listUserComment.map((item) => {
-    return item.user._id;
-  });
-  if (!user._id.equals(post.creater._id)) {
-    admin.messaging().sendToDevice(post.creater.fcmToken, {
-      data: {
-        user: JSON.stringify({
-          name: user.name,
-          _id: user._id,
-          avatar: user.avatar,
-        }),
-        post: JSON.stringify({ postID }),
-        type: "COMMENT",
-      },
-      notification: {
-        body: `${user.name} đã bình luận về bài một viết của bạn`,
-        title: "SocialApp thông báo",
-      },
+    const listUser = listUserComment.map((item) => {
+      return item.user._id;
     });
-  }
-  if (listFCMToken.length > 0) {
-    admin.messaging().sendMulticast({
-      tokens: listFCMToken,
-      notification: {
-        body: `${user.name} đã bình luận về một bài viết mà bạn theo dõi`,
-        title: "SocialApp thông báo",
-      },
-      data: {
-        post: JSON.stringify({ postID }),
-        user: JSON.stringify({
-          name: user.name,
-          _id: user._id,
-          avatar: user.avatar,
-        }),
-        type: "COMMENT",
-      },
-    });
-  }
-  const newNotification = new Notification({
-    owner: post.creater._id,
-    body: `${user.name} đã bình luận về bài một viết của bạn`,
-    title: "SocialApp thông báo",
-    type: "COMMENT",
-    user: user._id,
-    post: postID,
-  });
-  const newListNotification = listUser.map((item) => {
-    return {
-      owner: item,
+    if (!user._id.equals(post.creater._id)) {
+      admin.messaging().sendToDevice(post.creater.fcmToken, {
+        data: {
+          user: JSON.stringify({
+            name: user.name,
+            _id: user._id,
+            avatar: user.avatar,
+          }),
+          post: JSON.stringify({ postID }),
+          type: "COMMENT",
+          body: `${user.name} đã bình luận về bài một viết của bạn`,
+          title: "SocialApp thông báo",
+        },
+      });
+    }
+    if (listFCMToken.length > 0) {
+      admin.messaging().sendMulticast({
+        tokens: listFCMToken,
+        data: {
+          body: `${user.name} đã bình luận về một bài viết mà bạn theo dõi`,
+          title: "SocialApp thông báo",
+          post: JSON.stringify({ postID }),
+          user: JSON.stringify({
+            name: user.name,
+            _id: user._id,
+            avatar: user.avatar,
+          }),
+          type: "COMMENT",
+        },
+      });
+    }
+    const newNotification = new Notification({
+      owner: post.creater._id,
       body: `${user.name} đã bình luận về bài một viết của bạn`,
       title: "SocialApp thông báo",
       type: "COMMENT",
       user: user._id,
       post: postID,
-    };
-  });
-  if (user._id !== post.creater._id) {
-    newListNotification.push(newNotification);
+    });
+    const newListNotification = listUser.map((item) => {
+      return {
+        owner: item,
+        body: `${user.name} đã bình luận về bài một viết của bạn`,
+        title: "SocialApp thông báo",
+        type: "COMMENT",
+        user: user._id,
+        post: postID,
+      };
+    });
+    if (user._id !== post.creater._id) {
+      newListNotification.push(newNotification);
+    }
+    await Notification.insertMany([...newListNotification]);
+  } catch (error) {
+    console.log(error);
   }
-  await Notification.insertMany([...newListNotification]);
 };
 
 const sendNotifyNewMessage = async (message) => {
@@ -233,13 +229,11 @@ const sendNotifyNewMessage = async (message) => {
     if (listFCMToken.length > 0) {
       admin.messaging().sendMulticast({
         tokens: listFCMToken,
-        notification: {
+        data: {
           body: message.uriIamge
             ? `${message.userSend.name} đã gửi cho bạn một ảnh`
             : `${message.content}`,
           title: `Bạn có tin nhắn mới từ ${message.userSend.name}`,
-        },
-        data: {
           conversationID: message.conversation,
           user: JSON.stringify({ ...message.userSend }),
           type: "MESSAGE",

@@ -3,6 +3,7 @@ import {showAlert} from '../../ultilities/Ultilities';
 import {Conversation, ConversationItem} from '../../constant/types';
 import callAPI from '../../apis/api';
 import {getConversationUrl} from '../../apis/url';
+import {store} from '../../app/store';
 
 interface ConversationState {
   listConversation: Array<ConversationItem>;
@@ -21,7 +22,6 @@ export const requestGetConversation = createAsyncThunk(
       const newListConversation = res.listConversation.filter(
         (item: ConversationItem) => item.lastMessage !== '',
       );
-      console.log(res);
       return new Promise(resolve => {
         resolve({
           status: true,
@@ -59,7 +59,14 @@ export const conversationSlice = createSlice({
         item => item._id === action.payload.conversation._id,
       );
       if (indexOfNewConversation !== -1) {
+        if (state.listConversation[indexOfNewConversation].isSeen) {
+          if (action.payload.conversation.userSend !== action.payload.user) {
+            state.totalConversationNotRead += 1;
+          }
+        }
         state.listConversation.splice(indexOfNewConversation, 1);
+      } else {
+        state.totalConversationNotRead += 1;
       }
       state.listConversation = [
         action.payload.conversation,
@@ -82,6 +89,9 @@ export const conversationSlice = createSlice({
             isSeen: true,
           };
           state.listConversation = newConversation;
+          if (state.totalConversationNotRead > 0) {
+            state.totalConversationNotRead -= 1;
+          }
         }
       }
     },

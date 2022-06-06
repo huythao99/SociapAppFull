@@ -36,6 +36,8 @@ export default function AppNavigator() {
       const user = notification.notification.data.user
         ? JSON.parse(notification.notification.data.user)
         : null;
+      const conversationID = notification.notification.data.conversationID;
+
       switch (notification.notification.data.type) {
         case 'COMMENT':
           RootNavigation.navigate('CommentPostScreen', {
@@ -45,6 +47,11 @@ export default function AppNavigator() {
         case 'FOLLOW':
           RootNavigation.navigate('ProfileScreen', {
             uid: user._id,
+          });
+          break;
+        case 'MESSAGE':
+          RootNavigation.navigate('ChatScreen', {
+            conversationID: conversationID,
           });
           break;
         default:

@@ -83,14 +83,12 @@ const createPost = async (req, res) => {
 const likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.query.postID);
-    const listUserLikePost = [...post.listIDUserLike];
+    const listUserLikePost = [...post.listUserLike];
     const indexUserLikedPost = listUserLikePost.findIndex(
       (item) => item.userID === req.user._id
     );
     if (indexUserLikedPost === -1) {
-      listUserLikePost.push({
-        userID: req.user._id,
-      });
+      listUserLikePost.push(req.user._id);
     } else {
       listUserLikePost.splice(indexUserLikedPost, 1);
     }
@@ -98,7 +96,7 @@ const likePost = async (req, res) => {
     const dataUpdate = await Post.findByIdAndUpdate(
       req.query.postID,
       {
-        listIDUserLike: listUserLikePost,
+        listUserLike: [...listUserLikePost],
       },
       options
     );

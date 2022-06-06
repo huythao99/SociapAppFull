@@ -18,8 +18,8 @@ async function onMessageReceived(message) {
   if (message.data.type === 'MESSAGE') {
     const user = JSON.parse(message.data.user);
     notifee.displayNotification({
-      title: message.notification.title,
-      body: message.notification.body,
+      title: message.data.title,
+      body: message.data.body,
       android: {
         channelId: channelId,
         smallIcon: 'ic_small_icon',

@@ -10,12 +10,13 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {normalize, WIDTH} from '../constant/dimensions';
 import {BLUE_A400, BLUE_GRAY_200, RED_A400, WHITE} from '../constant/color';
 import styled from 'styled-components/native';
+import {View} from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
 const NumberContainer = styled.View`
-  width: ${(WIDTH / 100) * 6}px;
-  height: ${(WIDTH / 100) * 6}px;
+  width: ${(WIDTH / 100) * 5}px;
+  height: ${(WIDTH / 100) * 5}px;
   align-items: center;
   justify-content: center;
   border-radius: ${(WIDTH / 100) * 4}px;
@@ -40,10 +41,7 @@ export default function TopTabs() {
     <Tab.Navigator
       screenOptions={{
         tabBarShowLabel: false,
-        tabBarContentContainerStyle: {
-          margin: 0,
-          padding: 0,
-        },
+        tabBarShowIcon: true,
       }}>
       <Tab.Screen
         name="HomeScreen"

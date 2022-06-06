@@ -302,7 +302,6 @@ const followUser = async (req, res) => {
       message: "follow success",
     });
   } catch (error) {
-    console.log(error.message);
     return res.status(400).json({ status: 0, message: error.message });
   }
 };
