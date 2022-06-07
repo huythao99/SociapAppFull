@@ -195,6 +195,19 @@ export const authSlice = createSlice({
         state.listFollow.splice(indexOfUser, 1);
       }
     },
+    updateExistUser: (state, action) => {
+      state.name = action.payload.name;
+      state.email = action.payload.email;
+      state.avatar = action.payload.avatar;
+      state.password = action.payload.password;
+      state.id = action.payload.id;
+      state.token = action.payload.token;
+      state.coverImage = action.payload.coverImage;
+      state.isLoadingSplash = false;
+      state.existUser = true;
+      state.listFollow = action.payload.listFollow;
+      state.listFollower = action.payload.listFollower;
+    },
   },
   extraReducers: builder => {
     // sign in
@@ -236,7 +249,12 @@ export const authSlice = createSlice({
   },
 });
 
-export const {loadingSplash, updateAvatar, updateCoverImage, updateListFollow} =
-  authSlice.actions;
+export const {
+  loadingSplash,
+  updateAvatar,
+  updateCoverImage,
+  updateListFollow,
+  updateExistUser,
+} = authSlice.actions;
 
 export default authSlice.reducer;

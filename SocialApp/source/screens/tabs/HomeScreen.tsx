@@ -12,6 +12,7 @@ import {DEFAULT_AVATAR} from '../../constant/constants';
 import {requestGetPost, updateListPost} from '../../feature/post/postSlice';
 import {socket} from '../../socket/SocketClient';
 import ListEmpty from '../../components/ListEmpty';
+import LoadingScreen from '../../components/LoadingScreen';
 
 interface HeaderProps {
   avatarUser: string;
@@ -69,6 +70,7 @@ export default function HomeScreen() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const listPost = useAppSelector(state => state.post.listPost);
   const [totalPost, setTotalPost] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(true);
   const navigation = useNavigation<HomeScreenProps>();
   const dispatch = useAppDispatch();
   const [isRefresh, setIsRefresh] = React.useState(false);
@@ -84,6 +86,7 @@ export default function HomeScreen() {
   };
 
   const getListPost = async (page: number) => {
+    setIsLoading(true);
     const response = await dispatch(requestGetPost({page})).unwrap();
     if (response.status) {
       if (page === 1) {
@@ -91,6 +94,7 @@ export default function HomeScreen() {
       }
       setCurrentPage(page);
     }
+    setIsLoading(false);
   };
 
   const onLoadMore = () => {
@@ -135,7 +139,7 @@ export default function HomeScreen() {
       keyExtractor={item => item._id}
       renderItem={renderItem}
       contentContainerStyle={{flexGrow: 1, backgroundColor: BLUE_GRAY_200}}
-      ListEmptyComponent={ListEmpty}
+      ListEmptyComponent={isLoading ? LoadingScreen : ListEmpty}
       ListHeaderComponent={
         <HeaderFlatList
           onPress={onClickCreatePostButton}
