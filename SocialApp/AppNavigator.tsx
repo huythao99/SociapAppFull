@@ -62,19 +62,22 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer ref={navigationRef}>
-      {loadingSplash ? (
-        <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}>
+        {loadingSplash ? (
           <Stack.Screen
             name={'SplashScreen'}
             component={SplashScreen}
             options={{headerShown: false}}
           />
-        </Stack.Navigator>
-      ) : !existUser ? (
-        <AuthStack />
-      ) : (
-        <MainStack />
-      )}
+        ) : !existUser ? (
+          <Stack.Screen name={'AuthNavigator'} component={AuthStack} />
+        ) : (
+          <Stack.Screen name={'MainNavigator'} component={MainStack} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

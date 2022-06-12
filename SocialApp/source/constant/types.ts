@@ -12,6 +12,8 @@ export interface User {
 }
 
 export type RootStackParamList = {
+  AuthNavigator: undefined;
+  MainNavigator: undefined;
   SplashScreen: undefined;
   SignInScreen: undefined;
   SignUpScreen: undefined;

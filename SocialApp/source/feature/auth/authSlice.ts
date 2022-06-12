@@ -208,6 +208,9 @@ export const authSlice = createSlice({
       state.listFollow = action.payload.listFollow;
       state.listFollower = action.payload.listFollower;
     },
+    removeUser: state => {
+      state.existUser = false;
+    },
   },
   extraReducers: builder => {
     // sign in
@@ -255,6 +258,7 @@ export const {
   updateCoverImage,
   updateListFollow,
   updateExistUser,
+  removeUser,
 } = authSlice.actions;
 
 export default authSlice.reducer;

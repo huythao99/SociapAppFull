@@ -18,12 +18,13 @@ export default function SplashScreen() {
 
   const hideSplashScreen = async () => {
     const user = await AsyncStorage.getItem('user');
-    if (!user) {
+    setTimeout(() => {
       dispatch(loadingSplash());
-    } else {
-      const data = JSON.parse(user);
-      dispatch(updateExistUser(data));
-    }
+      if (user) {
+        const data = JSON.parse(user);
+        dispatch(updateExistUser(data));
+      }
+    }, 1200);
   };
 
   React.useEffect(() => {
