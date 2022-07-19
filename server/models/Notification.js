@@ -1,4 +1,3 @@
-const { types } = require("joi");
 const { default: mongoose } = require("mongoose");
 const mongo = require("mongoose");
 const Notification = new mongo.Schema({

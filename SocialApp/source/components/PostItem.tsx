@@ -4,6 +4,7 @@ import {HEIGHT, normalize, WIDTH} from '../constant/dimensions';
 import {
   BLACK,
   BLUE_A200,
+  BLUE_A400,
   BLUE_GRAY,
   BLUE_GRAY_200,
   GREY_700,
@@ -65,6 +66,25 @@ const UserNameText = styled.Text`
   font-weight: 700;
   font-size: ${normalize(14)}px;
   color: ${BLACK};
+`;
+
+const RightRowHeaderContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const LabelContainer = styled.View`
+  padding-horizontal: ${(WIDTH / 100) * 4}px;
+  padding-vertical: ${HEIGHT / 100 / 4}px;
+  border-radius: ${WIDTH / 100}px;
+  background-color: ${BLUE_A400};
+  margin-horizontal: ${(WIDTH / 100) * 4}px;
+`;
+
+const LabelText = styled.Text`
+  color: ${WHITE};
+  font-size: ${normalize(12)}px;
+  font-weight: bold;
 `;
 
 const TimeCreatedPostText = styled.Text`
@@ -140,7 +160,7 @@ function PostItem(props: PostItemProps) {
   const navigation = useNavigation<HomeScreenProps>();
   const uid = useAppSelector(state => state.auth.id);
   const avatar = useAppSelector(state => state.auth.avatar);
-  const [timer, setTimer] = React.useState(null);
+  const [timer, setTimer] = React.useState<any>(null);
   const [isLiked, setIsLiked] = React.useState(false);
   const [numOfLike, setNumOfLike] = React.useState(0);
 
@@ -152,7 +172,7 @@ function PostItem(props: PostItemProps) {
     }
     setIsLiked(!isLiked);
 
-    let newTimer = timer;
+    let newTimer = timer || 0;
     if (newTimer) {
       clearTimeout(newTimer);
     }
@@ -169,19 +189,21 @@ function PostItem(props: PostItemProps) {
   };
 
   const onShowImage = () => {
-    Image.getSize(
-      props.item.uriImage,
-      (width, height) => {
-        navigation.navigate('ShowFullImageScreen', {
-          uriImage: props.item.uriImage,
-          width,
-          height,
-        });
-      },
-      error => {
-        showAlert(error.message, 'danger');
-      },
-    );
+    if (props.item.uriImage) {
+      Image.getSize(
+        props.item.uriImage,
+        (width, height) => {
+          navigation.navigate('ShowFullImageScreen', {
+            uriImage: props.item.uriImage || '',
+            width,
+            height,
+          });
+        },
+        error => {
+          showAlert(error.message, 'danger');
+        },
+      );
+    }
   };
 
   React.useEffect(() => {
@@ -219,9 +241,14 @@ function PostItem(props: PostItemProps) {
             </TimeCreatedPostText>
           </View>
         </UserContainer>
-        <TouchableOpacity>
-          <FontAwesome5 name={'ellipsis-h'} size={(WIDTH / 100) * 4.5} />
-        </TouchableOpacity>
+        <RightRowHeaderContainer>
+          <LabelContainer>
+            <LabelText>{props.item.topic}</LabelText>
+          </LabelContainer>
+          <TouchableOpacity>
+            <FontAwesome5 name={'ellipsis-h'} size={(WIDTH / 100) * 4.5} />
+          </TouchableOpacity>
+        </RightRowHeaderContainer>
       </HeaderContainer>
       <ContentTextButton>
         <ContentText>{props.item.content}</ContentText>

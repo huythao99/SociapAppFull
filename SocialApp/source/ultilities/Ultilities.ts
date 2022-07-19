@@ -34,8 +34,8 @@ export const timeAgo = (time: string | number | Date) => {
   } else if (ago < 86400 * 30) {
     return `${Math.round(ago / 86400)} ngày`;
   } else if (ago < 86400 * 30 * 12) {
-    return `${Math.round(ago / (86400 * 30 * 12))} tháng`;
-  } else return `${Math.round(ago / (86400 * 30))} năm`;
+    return `${Math.round(ago / (86400 * 30))} tháng`;
+  } else return `${Math.round(ago / (86400 * 30 * 12))} năm`;
 };
 
 export const checkPermision = async (type: string) => {

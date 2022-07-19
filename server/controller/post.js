@@ -6,6 +6,7 @@ const {
   sendNotifiOfNewPost,
   sendNotificationOfComment,
 } = require("../controller/notification");
+const { getTopicOfPost } = require("../utilities/post");
 
 const getPostByID = async (idPost) => {
   const post = await Post.findById({ _id: idPost }).populate({
@@ -46,14 +47,17 @@ const getAllPost = async (req, res) => {
 
 const createPost = async (req, res) => {
   try {
+    const topic = await getTopicOfPost({ data: req.body.content });
     if (req.file) {
       const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
         public_id: req.file.filename + Date.now(),
       });
+
       const newPost = new Post({
         creater: req.user._id,
         content: req.body.content,
         uriImage: uriImage.url,
+        topic,
       });
       const dataToSave = await newPost.save();
       sendNotifiOfNewPost(req.user._id, dataToSave._doc._id);
@@ -66,6 +70,7 @@ const createPost = async (req, res) => {
       const newPost = new Post({
         creater: req.user._id,
         content: req.body.content,
+        topic,
       });
       const dataToSave = await newPost.save();
       sendNotifiOfNewPost(req.user._id, dataToSave._doc._id);

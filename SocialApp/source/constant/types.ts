@@ -47,7 +47,7 @@ export type RootStackParamList = {
 
 export interface PostItem {
   timeCreate: number | string | Date;
-  _id?: string;
+  _id: string;
   creater: {
     _id: string;
     avatar: string;
@@ -58,6 +58,7 @@ export interface PostItem {
   uriVideo: string | null;
   listUserLike: Array<string>;
   listComment: Array<string>;
+  topic: string;
 }
 
 export interface CommentItem {
@@ -94,6 +95,7 @@ export interface Post {
   total?: number;
   comment?: CommentItem;
   postID?: string;
+  topic?: string;
 }
 
 export interface ListUser {

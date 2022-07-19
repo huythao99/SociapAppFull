@@ -14,19 +14,15 @@ export const getSignOutUrl = () => {
 // post
 
 export const getAllPost = () => {
-  return '/api/post/getAllPost';
+  return '/api/post/';
 };
 
 export const getCreatePostUrl = () => {
-  return '/api/post/createPost';
-};
-
-export const getListPostUrl = () => {
-  return '/api/post/getAllPost';
+  return '/api/post/';
 };
 
 export const likePost = () => {
-  return '/api/post/likePost';
+  return '/api/post/like';
 };
 
 export const getComment = () => {
@@ -34,48 +30,48 @@ export const getComment = () => {
 };
 
 export const getCreateCommentUrl = () => {
-  return 'api/post/createComment';
+  return 'api/post/comment';
 };
 
 // user
 export const getListUserUrl = () => {
-  return '/api/user/getAllUser';
+  return '/api/user/';
 };
 
 export const getDataUserUrl = () => {
-  return '/api/user/getDataUser';
+  return '/api/user/profile';
 };
 
 export const getUpdateAvatarUserUrl = () => {
-  return '/api/user/updateAvatar';
+  return '/api/user/profile/avatar';
 };
 
 export const getUpdateCoverImageUserUrl = () => {
-  return '/api/user/updateCoverImage';
+  return '/api/user/profile/cover-image';
 };
 
 export const getFollowUserUrl = () => {
-  return '/api/user/followUser';
+  return '/api/user/follow';
 };
 
 // chat
 export const getConversationUrl = () => {
-  return '/api/chat/getConversation';
+  return '/api/chat/conversation';
 };
 
 export const getMessage = () => {
-  return '/api/chat/getAllMessage';
+  return '/api/chat/message';
 };
 
 export const sendMessage = () => {
-  return '/api/chat/sendMessage';
+  return '/api/chat/message';
 };
 
 // notification
 export const getNotificationUrl = () => {
-  return '/api/notify/getNotify';
+  return '/api/notify/';
 };
 
 export const getUpdateStatusNotificationUrl = () => {
-  return '/api/notify/updateStatusNotify';
+  return '/api/notify/';
 };

@@ -1,16 +1,16 @@
 const express = require("express");
-const multer = require("multer");
-const Post = require("../models/Post");
 const verifyToken = require("../validation/verifyToken");
 const {
-  getAllPost,
-  createPost,
-  likePost,
-  getComment,
-  createComment,
-} = require("../controller/post");
+  getAllUser,
+  getDataUser,
+  updateAvatarUser,
+  updateCoverImageUser,
+  followUser,
+} = require("../controller/user");
+const multer = require("multer");
 
-const postRoute = express.Router();
+const userRoute = express.Router();
+
 const imageStorage = multer.diskStorage({
   // Destination to store image
   destination: "images",
@@ -35,19 +35,25 @@ const upload = multer({
     }
   },
 }).single("file");
-// get all post
-postRoute.get("/getAllPost", verifyToken, getAllPost);
 
-// create post
-postRoute.post("/createPost", verifyToken, upload, createPost);
+// get all User
+userRoute.get("/", verifyToken, getAllUser);
 
-// like post
-postRoute.patch("/likePost", verifyToken, likePost);
+// get all User
+userRoute.get("/profile", verifyToken, getDataUser);
 
-// get list comment
-postRoute.get("/comment", verifyToken, getComment);
+// update avatar user
+userRoute.patch("/profile/avatar", verifyToken, upload, updateAvatarUser);
 
-// create comment
-postRoute.post("/createComment", verifyToken, upload, createComment);
+// update cover image
+userRoute.patch(
+  "/profile/cover-image",
+  verifyToken,
+  upload,
+  updateCoverImageUser
+);
 
-module.exports = postRoute;
+// follow
+userRoute.patch("/profile/follow", verifyToken, followUser);
+
+module.exports = userRoute;

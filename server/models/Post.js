@@ -26,6 +26,9 @@ const Post = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  topic: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Post", Post);

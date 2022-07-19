@@ -85,6 +85,9 @@ const sendNotifiOfNewPost = async (userID, postID) => {
   const listFCMToken = user.listFollower.map((item) => {
     return item.fcmToken;
   });
+  if (listFCMToken.length === 0) {
+    return;
+  }
   admin.messaging().sendMulticast({
     tokens: listFCMToken,
     data: {

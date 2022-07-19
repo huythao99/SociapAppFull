@@ -2,7 +2,7 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { ITEMS_IN_PAGE, WIDTH_IMAGE, HEIGHT_IMAGE } = require("../constants");
+const { ITEMS_IN_PAGE } = require("../constants");
 const cloudinary = require("cloudinary");
 require("dotenv").config();
 const {
@@ -21,7 +21,7 @@ const getAllFCMTokenUser = async (userID) => {
   return newListFCMToken || [];
 };
 
-const signIn = async (req, res) => {
+const signin = async (req, res) => {
   try {
     const { error } = validationSignin(req.body);
     if (error) {
@@ -35,10 +35,7 @@ const signIn = async (req, res) => {
         .status(400)
         .json({ message: "email or password is wrong", status: 0 });
     } else {
-      const validatePassword = await bcrypt.compare(
-        req.body.password,
-        user.password
-      );
+      const validatePassword = bcrypt.compare(req.body.password, user.password);
       if (!validatePassword) {
         return res
           .status(400)
@@ -77,7 +74,7 @@ const signIn = async (req, res) => {
   }
 };
 
-const signUp = async (req, res) => {
+const signup = async (req, res) => {
   try {
     const { error } = validationSignup(req.body);
     if (error) {
@@ -111,7 +108,7 @@ const signUp = async (req, res) => {
   }
 };
 
-const signOut = async (req, res) => {
+const signout = async (req, res) => {
   try {
     const option = {
       new: true,
@@ -308,9 +305,9 @@ const followUser = async (req, res) => {
 
 module.exports = {
   getAllFCMTokenUser,
-  signIn,
-  signUp,
-  signOut,
+  signin,
+  signup,
+  signout,
   getAllUser,
   getDataUser,
   updateAvatarUser,
