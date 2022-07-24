@@ -1,4 +1,5 @@
 const express = require("express");
+const { verify } = require("jsonwebtoken");
 const multer = require("multer");
 const {
   getAllPost,
@@ -8,6 +9,7 @@ const {
   createComment,
   reportPost,
   getDetailPost,
+  editPost,
 } = require("../controller/post");
 const verifyToken = require("../validation/verifyToken");
 
@@ -43,7 +45,9 @@ router.get("/detail", verifyToken, getDetailPost);
 
 // create post
 router.post("/", verifyToken, upload, createPost);
+// edit post
 
+router.patch("/edit", verify, upload, editPost);
 // like post
 router.patch("/like", verifyToken, likePost);
 

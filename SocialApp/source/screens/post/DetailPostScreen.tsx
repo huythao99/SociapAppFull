@@ -168,6 +168,17 @@ export default function DetailPostScreen(props: Props) {
     });
   };
 
+  const onClickEditPost = () => {
+    if (post) {
+      setShowModal(false);
+      props.navigation.navigate('EditPostScreen', {
+        pid: post._id,
+        content: post.content,
+        urlImage: post.uriImage || undefined,
+      });
+    }
+  };
+
   const onCloseModal = () => {
     setShowModal(false);
   };
@@ -257,7 +268,7 @@ export default function DetailPostScreen(props: Props) {
           </ModalIndicatorContainer>
           <ScrollView>
             {post?.creater?._id === userID && (
-              <OptionButton>
+              <OptionButton onPress={onClickEditPost}>
                 <OptionContentText>Chỉnh sửa</OptionContentText>
                 <FontAwesome5 name="edit" size={(WIDTH / 100) * 6} />
               </OptionButton>

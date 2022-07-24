@@ -8,6 +8,7 @@ import {
   getCreateCommentUrl,
   getCreatePostUrl,
   getDetailPost,
+  getEditPostUrl,
   getReportPostUrl,
   likePost,
 } from '../../apis/url';
@@ -84,7 +85,7 @@ export const requestGetDetailPost = createAsyncThunk(
       const data = {
         postId,
       };
-      const res = await callAPI('get', getDetailPost(), data, {});
+      const res = await callAPI('get', getDetailPost(), {}, data);
       if (res) {
         return new Promise(resolve => {
           resolve({
@@ -222,7 +223,7 @@ export const requestGetComment = createAsyncThunk(
 );
 
 export const requestCreateComment = createAsyncThunk(
-  'post/requestCreatePost',
+  'post/requestCreateComment',
   async ({
     content,
     postID,
@@ -260,6 +261,71 @@ export const requestCreateComment = createAsyncThunk(
           resolve({
             status: true,
             comment: res.comment,
+          });
+        });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestEditPost = createAsyncThunk(
+  'post/requestEditPost',
+  async ({
+    content,
+    postID,
+    image,
+    oldImage,
+  }: {
+    content: string;
+    image: ImageFile | null;
+    postID: string;
+    oldImage: string | undefined;
+  }): Promise<Partial<Post>> => {
+    try {
+      let formData = new FormData();
+      formData.append('content', content);
+      formData.append('postID', postID);
+      if (oldImage) {
+        formData.append('oldImage', oldImage);
+      }
+      if (image) {
+        formData.append(
+          'file',
+          JSON.parse(
+            JSON.stringify({
+              name: `${Date.now()}_${image.fileName}`,
+              uri: image.uri,
+              type: image.type,
+            }),
+          ),
+        );
+      }
+      const res = await callAPI(
+        'patch',
+        getEditPostUrl(),
+        formData,
+        {},
+        'multipart/form-data',
+      );
+      if (res) {
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            post: res.post,
           });
         });
       } else {
@@ -342,11 +408,7 @@ export const postSlice = createSlice({
       if (indexOfPost === -1) {
         state.listPost = [action.payload.post, ...listPostCoppy];
       } else {
-        state.listPost = listPostCoppy.splice(
-          indexOfPost,
-          1,
-          action.payload.post,
-        );
+        state.listPost[indexOfPost] = action.payload.post;
       }
     },
     updateListComment: (state, action) => {
@@ -360,10 +422,12 @@ export const postSlice = createSlice({
     builder.addCase(requestGetPost.pending, state => {});
     builder.addCase(requestGetPost.fulfilled, (state, action) => {
       if (action.payload.status) {
-        if (action.payload.currentPage === 1) {
-          state.listPost = action.payload.listPost;
-        } else {
-          state.listPost = [...state.listPost, ...action.payload.listPost];
+        if (action.payload.listPost) {
+          if (action.payload.currentPage === 1) {
+            state.listPost = action.payload.listPost;
+          } else {
+            state.listPost = [...state.listPost, ...action.payload.listPost];
+          }
         }
       }
     });
@@ -372,13 +436,19 @@ export const postSlice = createSlice({
     builder.addCase(requestGetComment.fulfilled, (state, action) => {
       if (action.payload.status) {
         if (action.payload.currentPage === 1) {
-          state.postID = action.payload.postID;
-          state.listComment = action.payload.listComment;
+          if (action.payload.postID) {
+            state.postID = action.payload.postID;
+          }
+          if (action.payload.listComment) {
+            state.listComment = action.payload.listComment;
+          }
         } else {
-          state.listComment = [
-            ...state.listComment,
-            ...action.payload.listComment,
-          ];
+          if (action.payload.listComment) {
+            state.listComment = [
+              ...state.listComment,
+              ...action.payload.listComment,
+            ];
+          }
         }
       }
     });

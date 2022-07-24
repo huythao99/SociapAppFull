@@ -252,7 +252,7 @@ function PostItem(props: PostItemProps) {
           </TouchableOpacity>
         </RightRowHeaderContainer>
       </HeaderContainer>
-      <ContentTextButton>
+      <ContentTextButton activeOpacity={0.8}>
         <ContentText>{props.item.content}</ContentText>
       </ContentTextButton>
       {props.item.uriImage && (
@@ -313,4 +313,14 @@ function PostItem(props: PostItemProps) {
   );
 }
 
-export default React.memo(PostItem);
+function areEquals(prevProps: PostItemProps, nextProps: PostItemProps) {
+  if (
+    prevProps.item.content === nextProps.item.content &&
+    prevProps.item.uriImage === nextProps.item.uriImage
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export default React.memo(PostItem, areEquals);

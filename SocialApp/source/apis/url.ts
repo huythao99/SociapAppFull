@@ -37,6 +37,10 @@ export const getCreateCommentUrl = () => {
   return 'api/post/comment';
 };
 
+export const getEditPostUrl = () => {
+  return 'api/post/edit';
+};
+
 export const getReportPostUrl = () => {
   return 'api/post/report';
 };

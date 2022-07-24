@@ -8,6 +8,7 @@ import ShowFullImageScreen from '../screens/ShowFullImageScreen';
 import ProfileScreen from '../screens/personal/ProfileScreen';
 import CommentPostScreen from '../screens/post/CommentPostScreen';
 import DetailPostScreen from '../screens/post/DetailPostScreen';
+import EditPostScreen from '../screens/post/EditPostScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -65,6 +66,14 @@ export default function MainStack() {
       <Stack.Screen
         name={'DetailPostScreen'}
         component={DetailPostScreen}
+        options={{
+          headerShown: false,
+          presentation: 'modal',
+        }}
+      />
+      <Stack.Screen
+        name={'EditPostScreen'}
+        component={EditPostScreen}
         options={{
           headerShown: false,
           presentation: 'modal',

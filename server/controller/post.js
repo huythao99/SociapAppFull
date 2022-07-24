@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+var mongoose = require("mongoose");
 const Comment = require("../models/Comment");
 const { ITEMS_IN_PAGE } = require("../constants");
 const cloudinary = require("cloudinary");
@@ -20,7 +21,7 @@ const getPostByID = async (idPost) => {
 
 const getDetailPost = async (req, res) => {
   try {
-    const post = await Post.findById({ _id: req.body.postId }).populate({
+    const post = await Post.findById({ _id: req.query.postId }).populate({
       path: "creater",
       select: "name _id avatar",
     });
@@ -29,6 +30,83 @@ const getDetailPost = async (req, res) => {
       message: "get detail post success",
       post: post,
     });
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
+const editPost = async (req, res) => {
+  try {
+    const topic = await getTopicOfPost({ data: req.body.content });
+    const options = { new: true };
+    if (req.file) {
+      const uriImage = await cloudinary.v2.uploader.upload(`${req.file.path}`, {
+        public_id: req.file.filename + Date.now(),
+      });
+      await Post.findByIdAndUpdate(
+        mongoose.Types.ObjectId(req.body.postID),
+        {
+          topic,
+          content: req.body.content,
+          uriImage: uriImage.url,
+        },
+        options
+      );
+      const dataUpdate = await Post.findById(
+        mongoose.Types.ObjectId(req.body.postID)
+      ).populate({
+        path: "creater",
+        select: "name _id avatar",
+      });
+      return res.status(200).json({
+        status: 1,
+        message: "edit post success",
+        post: dataUpdate._doc,
+      });
+    } else {
+      if (!req.body.oldImage) {
+        await Post.findByIdAndUpdate(
+          mongoose.Types.ObjectId(req.body.postID),
+          {
+            content: req.body.content,
+            uriImage: null,
+            topic,
+          },
+          options
+        );
+        const dataUpdate = await Post.findById(
+          mongoose.Types.ObjectId(req.body.postID)
+        ).populate({
+          path: "creater",
+          select: "name _id avatar",
+        });
+        return res.status(200).json({
+          status: 1,
+          message: "edit post success",
+          post: dataUpdate._doc,
+        });
+      } else {
+        await Post.findByIdAndUpdate(
+          req.body.postID,
+          {
+            content: req.body.content,
+            topic,
+          },
+          options
+        );
+        const dataUpdate = await Post.findById(
+          mongoose.Types.ObjectId(req.body.postID)
+        ).populate({
+          path: "creater",
+          select: "name _id avatar",
+        });
+        return res.status(200).json({
+          status: 1,
+          message: "edit post success",
+          post: dataUpdate._doc,
+        });
+      }
+    }
   } catch (error) {
     return res.status(400).json({ status: 0, message: error.message });
   }
@@ -108,7 +186,9 @@ const likePost = async (req, res) => {
     const post = await Post.findById(req.query.postID);
     const listUserLikePost = [...post.listUserLike];
     const indexUserLikedPost = listUserLikePost.findIndex(
-      (item) => item.userID === req.user._id
+      (item) =>
+        mongoose.Types.ObjectId(item.userID) ===
+        mongoose.Types.ObjectId(req.user._id)
     );
     if (indexUserLikedPost === -1) {
       listUserLikePost.push(req.user._id);
@@ -233,4 +313,5 @@ module.exports = {
   getCommentByID,
   reportPost,
   getDetailPost,
+  editPost,
 };

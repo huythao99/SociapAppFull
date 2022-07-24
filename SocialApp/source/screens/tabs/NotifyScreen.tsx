@@ -49,7 +49,7 @@ export default function NotifyScreen() {
   const getData = async (page: number) => {
     const res = await dispatch(requestGetListNotification({page})).unwrap();
     if (res.status) {
-      setCurrentPage(res.currentPage);
+      setCurrentPage(res.currentPage || 1);
     }
     setIsRefresh(false);
   };

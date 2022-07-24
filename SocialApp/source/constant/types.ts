@@ -17,7 +17,9 @@ export type RootStackParamList = {
   SplashScreen: undefined;
   SignInScreen: undefined;
   SignUpScreen: undefined;
-  TopTabs: undefined;
+  TopTabs: {
+    screen?: string;
+  };
   HomeScreen: undefined;
   CreatePostScreen: undefined;
   MessageScreen: undefined;
@@ -30,6 +32,11 @@ export type RootStackParamList = {
   };
   DetailPostScreen: {
     idPost: string;
+  };
+  EditPostScreen: {
+    pid: string;
+    content: string;
+    urlImage: string | undefined;
   };
   ShowFullImageScreen: {
     uriImage: string;

@@ -231,6 +231,17 @@ export default function HomeScreen() {
     });
   };
 
+  const onClickEditPost = () => {
+    if (postSelect) {
+      setShowModal(false);
+      navigation.navigate('EditPostScreen', {
+        pid: postSelect._id,
+        content: postSelect.content,
+        urlImage: postSelect.uriImage || undefined,
+      });
+    }
+  };
+
   const onCloseModal = () => {
     setShowModal(false);
   };
@@ -288,7 +299,7 @@ export default function HomeScreen() {
     const response = await dispatch(requestGetPost({page})).unwrap();
     if (response.status) {
       if (page === 1) {
-        setTotalPost(response.total);
+        setTotalPost(response.total || 0);
       }
       setCurrentPage(page);
     }
@@ -364,7 +375,7 @@ export default function HomeScreen() {
           </ModalIndicatorContainer>
           <ScrollView>
             {postSelect?.creater?._id === userID && (
-              <OptionButton>
+              <OptionButton onPress={onClickEditPost}>
                 <OptionContentText>Chỉnh sửa</OptionContentText>
                 <FontAwesome5 name="edit" size={(WIDTH / 100) * 6} />
               </OptionButton>
