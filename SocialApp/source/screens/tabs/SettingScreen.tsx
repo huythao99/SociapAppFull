@@ -13,6 +13,10 @@ import {ARRAY_SHORTCUTS_BUTTON, DEFAULT_AVATAR} from '../../constant/constants';
 import {WIDTH, HEIGHT, normalize} from '../../constant/dimensions';
 import {requestSignout} from '../../feature/auth/authSlice';
 import LoadingScreen from '../../components/LoadingScreen';
+import {RootStackParamList} from '../../constant/types';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'SettingScreen'>;
 
 const Container = styled.View`
   flex: 1;
@@ -97,15 +101,22 @@ const SignOutText = styled(TitleText)`
   font-size: ${normalize(13)}px;
 `;
 
-export default function SettingScreen() {
+export default function SettingScreen(props: Props) {
   const avatarUser = useAppSelector(state => state.auth.avatar);
   const nameUser = useAppSelector(state => state.auth.name);
+  const uid = useAppSelector(state => state.auth.id);
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const onSignOut = () => {
     setIsLoading(true);
     dispatch(requestSignout());
+  };
+
+  const onClickProfile = () => {
+    props.navigation.navigate('ProfileScreen', {
+      uid: uid,
+    });
   };
 
   return (
@@ -116,7 +127,7 @@ export default function SettingScreen() {
       <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         showsVerticalScrollIndicator={false}>
-        <ProfileButton>
+        <ProfileButton onPress={onClickProfile}>
           <AvatarImage source={{uri: avatarUser || DEFAULT_AVATAR}} />
           <NameContainer>
             <UserNameText>{nameUser}</UserNameText>

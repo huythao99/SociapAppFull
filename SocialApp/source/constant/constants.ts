@@ -1,7 +1,7 @@
 import {BLUE_700, DEEP_ORANGE_500, PURPLE_500, RED_500} from './color';
 
 export const BASE_URL = 'http://192.168.1.58:3000/';
-// export const BASE_URL = 'http://192.168.0.101:3000/';
+// export const BASE_URL = 'http://192.168.0.103:3000/';
 
 // export const BASE_URL = 'https://my-social-app-server.herokuapp.com/';
 // export const BASE_URL = 'http://192.168.150.80:3000/';
@@ -54,5 +54,36 @@ export const ARRAY_SHORTCUTS_BUTTON = [
     icon: 'heart',
     name: 'Hẹn hò',
     color: RED_500,
+  },
+];
+
+export const REPORT_TYPE = [
+  {
+    id: 1,
+    value: 'Ngôn từ gây thù ghét',
+  },
+  {
+    id: 2,
+    value: 'Khủng bố',
+  },
+  {
+    id: 3,
+    value: 'Bạo lực',
+  },
+  {
+    id: 4,
+    value: 'Thông tin sai sự thật',
+  },
+  {
+    id: 5,
+    value: 'Ảnh khỏa thân',
+  },
+  {
+    id: 6,
+    value: 'Tự tử hoặc gây thương tích',
+  },
+  {
+    id: 7,
+    value: 'Khác',
   },
 ];

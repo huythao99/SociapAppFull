@@ -248,6 +248,34 @@ const sendNotifyNewMessage = async (message) => {
   }
 };
 
+const sendNotificationOfReport = async (postId, contentReport) => {
+  const post = await Post.findById({ _id: postId }).populate({
+    path: "creater",
+    select: "fcmToken _id avatar name",
+  });
+  if (Boolean(post.creater.fcmToken)) {
+    admin.messaging().sendToDevice(post.creater.fcmToken, {
+      data: {
+        post: JSON.stringify({ postId }),
+        type: "CREATE_POST",
+        body: `Chúng tôi nhận được một báo cáo về bài viết của bạn với nội dung là ${contentReport}. 
+              Chúng tôi sẽ xem xét vấn đề này, nếu không phải, hãy liên hệ với chúng tôi`,
+        title: "SocialApp thông báo",
+      },
+    });
+  }
+  const newNotification = new Notification({
+    owner: post.creater._id,
+    type: "CREATE_POST",
+    body: `Chúng tôi nhận được một báo cáo về bài viết của bạn với nội dung là ${contentReport}. 
+          Chúng tôi sẽ xem xét vấn đề này, nếu không phải, hãy liên hệ với chúng tôi`,
+    title: "SocialApp thông báo",
+    user: post.creater._id,
+    post: postId,
+  });
+  await newNotification.save();
+};
+
 module.exports = {
   sendNotifiOfNewPost,
   sendNotifiOfFollow,
@@ -255,4 +283,5 @@ module.exports = {
   getNotify,
   updateStatusNotify,
   sendNotifyNewMessage,
+  sendNotificationOfReport,
 };

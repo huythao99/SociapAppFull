@@ -17,6 +17,10 @@ export const getAllPost = () => {
   return '/api/post/';
 };
 
+export const getDetailPost = () => {
+  return '/api/post/detail';
+};
+
 export const getCreatePostUrl = () => {
   return '/api/post/';
 };
@@ -31,6 +35,10 @@ export const getComment = () => {
 
 export const getCreateCommentUrl = () => {
   return 'api/post/comment';
+};
+
+export const getReportPostUrl = () => {
+  return 'api/post/report';
 };
 
 // user

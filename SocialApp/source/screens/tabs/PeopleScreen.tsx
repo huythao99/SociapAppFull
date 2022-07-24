@@ -3,13 +3,14 @@ import {FlatList} from 'react-native';
 import styled from 'styled-components/native';
 import UserItem from '../../components/UserItem';
 import {BLACK, BLUE_GREY_100, WHITE} from '../../constant/color';
-import {useAppSelector, useAppDispatch} from '../../app/hook';
+import {useAppDispatch} from '../../app/hook';
 import {requestGetUser} from '../../feature/user/userSlice';
 import LoadingScreen from '../../components/LoadingScreen';
 import LineItem from '../../components/LineItem';
 import {HEIGHT, normalize, WIDTH} from '../../constant/dimensions';
 import {Controller, useForm} from 'react-hook-form';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {UserItem as UserInterface} from '../../constant/types';
 
 type FormValues = {
   textSearch: string;
@@ -40,18 +41,13 @@ const Input = styled.TextInput`
 `;
 
 export default function PeopleScreen() {
-  const {
-    control,
-    watch,
-    formState: {errors},
-  } = useForm<FormValues>({
+  const {control, watch} = useForm<FormValues>({
     defaultValues: {textSearch: ''},
   });
   const dispatch = useAppDispatch();
-  const [listPeople, setListPeople] = React.useState([]);
+  const [listPeople, setListPeople] = React.useState<UserInterface[]>([]);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalUser, setTotalUser] = React.useState(0);
-  const [timer, setTimer] = React.useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefresh, setIsRefresh] = useState(false);
   const textSearch = watch('textSearch', '');
@@ -63,12 +59,16 @@ export default function PeopleScreen() {
     ).unwrap();
     if (response.status) {
       if (page === 1) {
-        setTotalUser(response.totalUser);
-        setListPeople(response.listUser);
+        setTotalUser(response.totalUser || 0);
+        setListPeople(response.listUser || []);
       } else {
-        setListPeople([...listPeople, ...response.listUser]);
+        if (response.listUser) {
+          setListPeople([...listPeople, ...response.listUser]);
+        }
       }
-      setCurrentPage(response.currentPage);
+      if (response.currentPage) {
+        setCurrentPage(response.currentPage);
+      }
     }
     setIsLoading(false);
     setIsRefresh(false);
@@ -90,14 +90,9 @@ export default function PeopleScreen() {
   };
 
   React.useEffect(() => {
-    let newTimer = timer;
-    if (newTimer) {
-      clearTimeout(newTimer);
-    }
-    newTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       getData(1);
     }, 1000);
-    setTimer(newTimer);
     return () => {
       clearTimeout(timer);
       setListPeople([]);

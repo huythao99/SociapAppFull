@@ -30,6 +30,7 @@ interface PostItemProps {
   item: PostItemType;
   uid: string;
   onClickUserOfPost: (uid: string) => void;
+  onClickOptionButton: (post: PostItemType) => void;
 }
 
 type HomeScreenProps = StackNavigationProp<RootStackParamList, 'HomeScreen'>;
@@ -245,7 +246,8 @@ function PostItem(props: PostItemProps) {
           <LabelContainer>
             <LabelText>{props.item.topic}</LabelText>
           </LabelContainer>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => props.onClickOptionButton(props.item)}>
             <FontAwesome5 name={'ellipsis-h'} size={(WIDTH / 100) * 4.5} />
           </TouchableOpacity>
         </RightRowHeaderContainer>

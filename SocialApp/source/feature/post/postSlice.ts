@@ -7,6 +7,8 @@ import {
   getComment,
   getCreateCommentUrl,
   getCreatePostUrl,
+  getDetailPost,
+  getReportPostUrl,
   likePost,
 } from '../../apis/url';
 
@@ -50,6 +52,40 @@ export const requestCreatePost = createAsyncThunk(
       );
       if (res) {
         showAlert('Đăng bài thành công', 'success');
+        return new Promise(resolve => {
+          resolve({
+            status: true,
+            post: res.post,
+          });
+        });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestGetDetailPost = createAsyncThunk(
+  'post/requestGetDetailPost',
+  async ({postId}: {postId: string}): Promise<Partial<Post>> => {
+    try {
+      const data = {
+        postId,
+      };
+      const res = await callAPI('get', getDetailPost(), data, {});
+      if (res) {
         return new Promise(resolve => {
           resolve({
             status: true,
@@ -224,6 +260,47 @@ export const requestCreateComment = createAsyncThunk(
           resolve({
             status: true,
             comment: res.comment,
+          });
+        });
+      } else {
+        showAlert(res.message, 'danger');
+        return new Promise(resolve => {
+          resolve({
+            status: false,
+          });
+        });
+      }
+    } catch (error) {
+      showAlert(error.message, 'danger');
+      return new Promise(resolve => {
+        resolve({
+          status: false,
+        });
+      });
+    }
+  },
+);
+
+export const requestReportPost = createAsyncThunk(
+  'post/requestReportPost',
+  async ({
+    content,
+    postID,
+  }: {
+    content: string;
+    postID: string;
+  }): Promise<Partial<Post>> => {
+    try {
+      const data = {
+        content,
+        postID,
+      };
+      const res = await callAPI('post', getReportPostUrl(), data, {});
+      if (res) {
+        showAlert('Chúng tôi đã nhận được báo cáo của bạn', 'success');
+        return new Promise(resolve => {
+          resolve({
+            status: true,
           });
         });
       } else {

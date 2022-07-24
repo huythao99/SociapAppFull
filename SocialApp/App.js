@@ -35,6 +35,11 @@ export default function App() {
               conversationID: conversationID,
             });
             break;
+          case 'CREATE_POST':
+            RootNavigation.navigate('DetailPostScreen', {
+              idPost: post.postID,
+            });
+            break;
           default:
             break;
         }

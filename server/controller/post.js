@@ -5,8 +5,10 @@ const cloudinary = require("cloudinary");
 const {
   sendNotifiOfNewPost,
   sendNotificationOfComment,
+  sendNotificationOfReport,
 } = require("../controller/notification");
 const { getTopicOfPost } = require("../utilities/post");
+const Report = require("../models/Report");
 
 const getPostByID = async (idPost) => {
   const post = await Post.findById({ _id: idPost }).populate({
@@ -14,6 +16,22 @@ const getPostByID = async (idPost) => {
     select: "name _id avatar",
   });
   return post;
+};
+
+const getDetailPost = async (req, res) => {
+  try {
+    const post = await Post.findById({ _id: req.body.postId }).populate({
+      path: "creater",
+      select: "name _id avatar",
+    });
+    return res.status(200).json({
+      status: 1,
+      message: "get detail post success",
+      post: post,
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
 };
 
 const getCommentByID = async (idComment) => {
@@ -157,6 +175,7 @@ const createComment = async (req, res) => {
         { $push: { listComment: dataToSave._doc._id } },
         options
       );
+      sendNotificationOfComment(req.user._id, req.body.postID);
       return res.status(200).json({
         status: 1,
         message: "create comment success",
@@ -186,6 +205,24 @@ const createComment = async (req, res) => {
   }
 };
 
+const reportPost = async (req, res) => {
+  try {
+    const newReport = new Report({
+      user: req.user._id,
+      content: req.body.content,
+      post: req.body.postID,
+    });
+    await newReport.save();
+    sendNotificationOfReport(req.body.postID, req.body.content);
+    return res.status(200).json({
+      status: 1,
+      message: "report success",
+    });
+  } catch (error) {
+    return res.status(400).json({ status: 0, message: error.message });
+  }
+};
+
 module.exports = {
   getPostByID,
   getAllPost,
@@ -194,4 +231,6 @@ module.exports = {
   getComment,
   createComment,
   getCommentByID,
+  reportPost,
+  getDetailPost,
 };

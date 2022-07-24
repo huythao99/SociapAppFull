@@ -91,6 +91,15 @@ function NotificationComponent(props: NotificationProps) {
           dispatch(updateStatusNotification({_id: props.item._id}));
         }
         break;
+      case 'CREATE_POST':
+        navigation.navigate('DetailPostScreen', {
+          idPost: props.item.post,
+        });
+        if (!props.item.isSeen) {
+          dispatch(requestUpdateStatusNotification({id: props.item._id}));
+          dispatch(updateStatusNotification({_id: props.item._id}));
+        }
+        break;
       default:
         break;
     }

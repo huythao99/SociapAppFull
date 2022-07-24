@@ -6,7 +6,8 @@ const {
   getComment,
   createPost,
   createComment,
-  // createComment,
+  reportPost,
+  getDetailPost,
 } = require("../controller/post");
 const verifyToken = require("../validation/verifyToken");
 
@@ -37,6 +38,8 @@ const upload = multer({
 }).single("file");
 // get all post
 router.get("/", verifyToken, getAllPost);
+// detail post
+router.get("/detail", verifyToken, getDetailPost);
 
 // create post
 router.post("/", verifyToken, upload, createPost);
@@ -49,5 +52,7 @@ router.get("/comment", verifyToken, getComment);
 
 // create comment
 router.post("/comment", verifyToken, upload, createComment);
+
+router.post("/report", verifyToken, reportPost);
 
 module.exports = router;

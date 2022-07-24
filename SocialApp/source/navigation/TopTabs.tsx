@@ -10,7 +10,6 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {normalize, WIDTH} from '../constant/dimensions';
 import {BLUE_A400, BLUE_GRAY_200, RED_A400, WHITE} from '../constant/color';
 import styled from 'styled-components/native';
-import {View} from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
