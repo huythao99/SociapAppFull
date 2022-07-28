@@ -39,7 +39,7 @@ import LoadingScreen from '../../components/LoadingScreen';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import Modal from 'react-native-modal';
 import ListEmpty from '../../components/ListEmpty';
-import {updateListFollow} from '../../feature/auth/authSlice';
+import {updateAvatar, updateListFollow} from '../../feature/auth/authSlice';
 
 const FlatListAnimated = Animated.createAnimatedComponent(FlatList);
 const ButtonAnimated = Animated.createAnimatedComponent(TouchableOpacity);
@@ -463,7 +463,7 @@ export default function ProfileScreen(props: ProfileProps) {
       navigation.navigate('ChatScreen', {
         participantID: [userId, props.route.params.uid],
         friendName: userName,
-        friendAvatar: userAvatar,
+        friendAvatar: userAvatar || DEFAULT_AVATAR,
       });
     }
   };

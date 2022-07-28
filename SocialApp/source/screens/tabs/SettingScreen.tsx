@@ -107,7 +107,6 @@ export default function SettingScreen(props: Props) {
   const uid = useAppSelector(state => state.auth.id);
   const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = React.useState(false);
-
   const onSignOut = () => {
     setIsLoading(true);
     dispatch(requestSignout());

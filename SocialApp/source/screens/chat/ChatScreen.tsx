@@ -15,7 +15,7 @@ import {FlatList} from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {Message, RootStackParamList} from '../../constant/types';
+import {RootStackParamList} from '../../constant/types';
 import MessageComponent from '../../components/MessageComponent';
 import {
   requestGetMessage,
@@ -23,10 +23,10 @@ import {
   resetListMessage,
   updateListMessage,
 } from '../../feature/message/messageSlice';
-import {BASE_URL, DEFAULT_AVATAR} from '../../constant/constants';
-import {io, Socket} from 'socket.io-client';
+import {DEFAULT_AVATAR} from '../../constant/constants';
+import {Socket} from 'socket.io-client';
 import {socketChat} from '../../socket/SocketClient';
-import Animated, {Layout, SequencedTransition} from 'react-native-reanimated';
+import Animated, {Layout} from 'react-native-reanimated';
 
 interface ChatProps {
   route: {
@@ -136,7 +136,9 @@ export default function ChatScreen(props: ChatProps) {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [total, setTotal] = React.useState(1);
   const [friendName, setFriendName] = React.useState(null);
-  const [friendAvatar, setFriendAvatar] = React.useState(null);
+  const [friendAvatar, setFriendAvatar] = React.useState(
+    props.route.params.friendAvatar || null,
+  );
   const [conversationID, setConversationID] = React.useState(null);
   const [listParticipants, setListParticipants] = React.useState([]);
 
@@ -244,7 +246,7 @@ export default function ChatScreen(props: ChatProps) {
         }
         setCurrentPage(res.currentPage);
       }
-    } else {
+    } else if (props.route.params.participantID) {
       const res = await dispatch(
         requestGetMessage({
           page: page,

@@ -13,7 +13,7 @@ const Conversation = new mongoose.Schema({
   ],
   lastMessage: {
     type: String,
-    required: true,
+    default: "",
   },
   timeSend: {
     type: Date,
