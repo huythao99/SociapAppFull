@@ -55,8 +55,9 @@ function UserItem({item}: UserItemProps) {
   const navigation = useNavigation<HomeScreenProps>();
   const onStartChat = () => {
     navigation.navigate('ChatScreen', {
-      userCreatorID: currentUserID,
-      participantID: item.id,
+      participantID: [currentUserID, item.id],
+      friendName: item.name,
+      friendAvatar: item.avatar || DEFAULT_AVATAR,
     });
   };
 
