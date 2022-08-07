@@ -5,6 +5,24 @@
 Details [here](https://reactnative.dev/docs/environment-setup). See instructions in section `React Native CLI Quickstart` (not `Expo CLI Quickstart`) <br />
 <br />
 
+### Install Project
+
+#### Frontend
+1. Run command `yarn install` to install package.
+2. Change variable `BASE_URL` in `./SocialApp/source/constant/constants.ts` to url of server.
+3. Run command `yarn android` to run React Native App on android.
+
+#### Backend
+##### Nodejs Server
+1. Run command `npm install` to install package.
+2. Change url when create server socket io in `./server/bin/www.js`.
+3. Change uri of database in `./server/.env`.
+4. Run command `npm start` to run server Nodejs.
+
+#### Python Server
+1. Run command `pip install` to install package.
+2. Run `python application.py` to run python server.
+
 ### Library
 
 #### React Native Navigation (6.x)
