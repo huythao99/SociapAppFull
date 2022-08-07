@@ -188,15 +188,18 @@ export default function ChatScreen(props: ChatProps) {
       return;
     }
     resetField('content');
+    const listParticipantsID = listParticipants.map(
+      participant => participant?._id,
+    );
     const message = {
       content: data.content,
-      urlImage: null,
+      urlImage: uriImage,
       userSend: userID,
       conversation: conversationID,
       participants:
-        listParticipants.length === 0
+        listParticipantsID.length === 0
           ? [...props.route.params.participantID]
-          : listParticipants,
+          : listParticipantsID,
     };
     const res = await dispatch(requestSendMessage({message})).unwrap();
     if (res.status) {

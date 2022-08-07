@@ -160,7 +160,7 @@ function PostItem(props: PostItemProps) {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<HomeScreenProps>();
   const uid = useAppSelector(state => state.auth.id);
-  const avatar = useAppSelector(state => state.auth.avatar);
+  const avatar = useAppSelector(state => state.auth.avatar) || DEFAULT_AVATAR;
   const [timer, setTimer] = React.useState<any>(null);
   const [isLiked, setIsLiked] = React.useState(false);
   const [numOfLike, setNumOfLike] = React.useState(0);
@@ -213,7 +213,6 @@ function PostItem(props: PostItemProps) {
     );
     setNumOfLike(props.item.listUserLike.length);
   }, []);
-
   return (
     <Animated.View
       entering={LightSpeedInLeft.duration(400)}
@@ -230,9 +229,9 @@ function PostItem(props: PostItemProps) {
           <UserAvatarImage
             source={{
               uri:
-                (props.item.creater._id === uid
+                props.item.creater._id === uid
                   ? avatar
-                  : props.item.creater.avatar) || DEFAULT_AVATAR,
+                  : props.item.creater.avatar || DEFAULT_AVATAR,
             }}
           />
           <View>
@@ -316,7 +315,8 @@ function PostItem(props: PostItemProps) {
 function areEquals(prevProps: PostItemProps, nextProps: PostItemProps) {
   if (
     prevProps.item.content === nextProps.item.content &&
-    prevProps.item.uriImage === nextProps.item.uriImage
+    prevProps.item.uriImage === nextProps.item.uriImage &&
+    prevProps.item.creater.avatar === nextProps.item.creater.avatar
   ) {
     return true;
   }

@@ -220,7 +220,6 @@ export default function EditPostScreen(props: Props) {
         cameraType: 'back',
       },
       response => {
-        console.log(response);
         if (response.assets && response.assets[0]) {
           setImage({
             uri: response.assets[0].uri || '',

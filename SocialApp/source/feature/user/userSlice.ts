@@ -14,6 +14,7 @@ import {
   updateCoverImage,
   updateListFollow,
 } from '../auth/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UserState {}
 
@@ -117,6 +118,13 @@ export const requestUpdateAvatarUser = createAsyncThunk(
             avatar: res.avatar,
           }),
         );
+        const value = await AsyncStorage.getItem('user');
+        const jsonValue = value != null ? JSON.parse(value) : null;
+        const user = {
+          ...jsonValue,
+          avatar: res.avatar,
+        };
+        await AsyncStorage.setItem('user', JSON.stringify(user));
       }
       return new Promise(resolve => {
         resolve({
