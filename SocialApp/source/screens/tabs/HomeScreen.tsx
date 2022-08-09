@@ -206,7 +206,6 @@ const HeaderFlatList = (props: HeaderProps) => {
 export default function HomeScreen() {
   const avatarUser = useAppSelector(state => state.auth.avatar);
   const userID = useAppSelector(state => state.auth.id);
-  const [currentPage, setCurrentPage] = React.useState(1);
   const listPost = useAppSelector(state => state.post.listPost);
   const [totalPost, setTotalPost] = React.useState(1);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -296,19 +295,18 @@ export default function HomeScreen() {
 
   const getListPost = async (page: number) => {
     setIsLoading(true);
-    const response = await dispatch(requestGetPost({page})).unwrap();
+    const response = await dispatch(requestGetPost({skip: 0})).unwrap();
     if (response.status) {
       if (page === 1) {
         setTotalPost(response.total || 0);
       }
-      setCurrentPage(page);
     }
     setIsLoading(false);
   };
 
   const onLoadMore = () => {
     if (listPost.length < totalPost) {
-      dispatch(requestGetPost({page: currentPage + 1}));
+      dispatch(requestGetPost({skip: listPost.length}));
     }
   };
 

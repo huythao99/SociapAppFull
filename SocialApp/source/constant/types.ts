@@ -103,6 +103,7 @@ export interface Post {
   comment?: CommentItem;
   postID?: string;
   topic?: string;
+  skip?: number;
 }
 
 export interface ListUser {

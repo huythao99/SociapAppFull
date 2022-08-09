@@ -114,10 +114,10 @@ export const requestGetDetailPost = createAsyncThunk(
 
 export const requestGetPost = createAsyncThunk(
   'post/requestGetPost',
-  async ({page}: {page: number}): Promise<Partial<Post>> => {
+  async ({skip}: {skip: number}): Promise<Partial<Post>> => {
     try {
       const params = {
-        page,
+        skip,
       };
       const res = await callAPI('get', getAllPost(), {}, params);
       if (res) {
@@ -125,8 +125,8 @@ export const requestGetPost = createAsyncThunk(
           resolve({
             status: true,
             listPost: res.listPost,
-            currentPage: res.current_page,
             total: res.total,
+            skip: skip,
           });
         });
       } else {
@@ -423,7 +423,7 @@ export const postSlice = createSlice({
     builder.addCase(requestGetPost.fulfilled, (state, action) => {
       if (action.payload.status) {
         if (action.payload.listPost) {
-          if (action.payload.currentPage === 1) {
+          if (action.payload.skip === 0) {
             state.listPost = action.payload.listPost;
           } else {
             state.listPost = [...state.listPost, ...action.payload.listPost];
